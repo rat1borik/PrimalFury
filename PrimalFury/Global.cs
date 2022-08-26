@@ -17,6 +17,10 @@ namespace PrimalFury
         static TestMapBuilder testBuilder;
         static Renderer testRenderer;
 
+        //Settings
+
+        static Settings settings;
+
         // Mouse
         static uint MouseX = 0, MouseY = 0; 
         static int  XDiff=0,YDiff=0;
@@ -36,13 +40,17 @@ namespace PrimalFury
         static Sprite crosshair;
         static uint crosshairRectX=25, crosshairRectY = 25;
         static string fileCrosshair= "crosshair.png";
+
         static void Main(string[] args)
         {
             PrepareWindow();
 
+            settings = new TestSettingsLoader().Load();
+
             // Load all resources temp shit
             Vector2u crosshairRect = new Vector2u(crosshairRectX, crosshairRectY);
             Image crosshairImg = new Image(fileCrosshair);
+            var debugFont = new Font("font.otf");
 
             crosshair = new Sprite() {
                 Texture = new Texture(fileCrosshair),
@@ -54,7 +62,7 @@ namespace PrimalFury
                 FillColor = Color.Yellow
             };
             var debugInfo = new Text() {
-                Font = new Font("font.otf"),
+                Font = debugFont,
                 CharacterSize = 14,
                 FillColor = Color.Green,
                 Position = new Vector2f(WindowWidth - 200, 0)
@@ -93,14 +101,22 @@ namespace PrimalFury
 
                 var minimap = testMap.GetMapView();
 
-                var inters = Utils.Vectors.Intersection(minimap[0],minimap[1]);
+                var inters = Utils.Vectors.Intersection(minimap[0],minimap[1],true);
                 
                 // window.Draw(new Vertex[] { new Vertex(new Vector2f(100, 100), Color.Red) , new Vertex(new Vector2f(200, 200), Color.Red) , new Vertex(new Vector2f(400, 500), Color.Red) }, PrimitiveType.LinesStrip);
 
-                testRenderer.DrawLineList(minimap,testMap.MapParams.MapRect);
+                testRenderer.DrawLineList(minimap,settings.MinimapPosition);
 
-                window.Draw(new Vertex[] { new Vertex(inters.Item1 + new Vector2f(100, 100), Color.Green) },PrimitiveType.Points);
-
+                if (inters.Item2){
+                    window.Draw(new CircleShape(4f, 12) {
+                        FillColor = Color.Red,
+                        Position = inters.Item1 + (Vector2f)settings.MinimapPosition - new Vector2f(2,2)
+                    });
+                    window.Draw(new CircleShape(4f, 12) {
+                        FillColor = Color.Red,
+                        Position = inters.Item1 + (Vector2f)settings.MinimapPosition - new Vector2f(2, 2)
+                    });
+                }
                 RenderHUD();
 
                 
