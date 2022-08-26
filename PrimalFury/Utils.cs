@@ -23,37 +23,41 @@ namespace PrimalFury {
                 }
 
                 if ((item.X <= container.X
-                    || item.X >= 0)
+                    && item.X >= 0)
                     && (item.Y <= container.Y
-                    || item.Y >= 0
+                    && item.Y >= 0
                     )) return true;
 
                 return false;
             }
             public static (Vector2i, Vector2i) Clip(Vector2i container, (Vector2i, Vector2i) item) {
+                    Vector2i pt1;
+                    Vector2i pt2;
 
-                Vector2i pt1;
-                Vector2i pt2;
+                    if (Contains(container, item.Item1)) {
+                        pt1 = item.Item1;
+                        pt2 = (Vector2i)Intersections(GetContainerLines(container), item)[0];
+                    } else if (Contains(container, item.Item2)) {
+                        pt2 = (Vector2i)Intersections(GetContainerLines(container), item)[0];
+                        pt1 = item.Item2;
+                    } else {
+                        var colls = Intersections(GetContainerLines(container), item);
+                        if (colls.Count == 2) {
+                            pt1 =(Vector2i)colls[0];
+                            pt2 =(Vector2i)colls[1];
+                        } else {
+                            throw new ArgumentException("Cannot clip when both point not in container");
+                        }
+                    }
 
-                if (Contains(container, item.Item1)) {
-                    pt1 = item.Item1;
-                    pt2 = (Vector2i)Intersections(new List<(Vector2i, Vector2i)>() { (new Vector2i(0,0), new Vector2i(0, 100)),
-                                                                            (new Vector2i(0,100), new Vector2i(100, 100)),
-                                                                            (new Vector2i(100,100), new Vector2i(100, 0)),
-                                                                            (new Vector2i(100,0), new Vector2i(0, 0))},item)[0];
-                } else if (Contains(container, item.Item2)) {
-                    pt2 = (Vector2i)Intersections(new List<(Vector2i, Vector2i)>() { (new Vector2i(0,0), new Vector2i(0, 100)),
-                                                                            (new Vector2i(0,100), new Vector2i(100, 100)),
-                                                                            (new Vector2i(100,100), new Vector2i(100, 0)),
-                                                                            (new Vector2i(100,0), new Vector2i(0, 0))}, item)[0];
-                    pt1 = item.Item2;
-                } else {
-                    throw new ArgumentException("Cannot clip when both point not in container");
-                }
-
-                return (pt1, pt2);
+                    return (pt1, pt2);
             }
-
+            public static List<(Vector2i, Vector2i)> GetContainerLines(Vector2i container) {
+                return new List<(Vector2i, Vector2i)>() {(new Vector2i(0, 0), new Vector2i(0, container.Y)),
+                                                                            (new Vector2i(0, container.Y), new Vector2i(container.X, container.Y)),
+                                                                            (new Vector2i(container.X, container.Y), new Vector2i(container.X, 0)),
+                                                                            (new Vector2i(container.X, 0), new Vector2i(0, 0)) };
+            }
             public static int Greatest(params int[] nums) {
                 return nums.Max();
             }
@@ -105,7 +109,7 @@ namespace PrimalFury {
                 var result = new List<Vector2f>();
                 foreach (var item in list) {
                     var coll = Intersection(item, line);
-                    if (coll.Item2) {
+                    if (coll.Item2 && !result.Exists((el)=>el == coll.Item1)) {
                         result.Add(coll.Item1);
                     }
                 }
@@ -114,9 +118,7 @@ namespace PrimalFury {
             public static float Length(Vector2i vec) {
                 return (float)Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y);
             }
-            public static int RLength(Vector2i vec) {
-                return (int)Math.Round(Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y));
-            }
+            
             public static Vector2i ToVector(Vector2i v1, Vector2i v2) {
                 return v2 - v1;
             }

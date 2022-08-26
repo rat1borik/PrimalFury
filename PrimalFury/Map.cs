@@ -59,6 +59,9 @@ namespace PrimalFury
                 viewList.Add(clipped);
 
             }
+            viewList = viewList.Concat(
+                Vectors.GetContainerLines(_mParams.MapRect)
+                ).ToList();
             return viewList;
         }
     }

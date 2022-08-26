@@ -25,8 +25,8 @@ namespace PrimalFury {
 
         public List<MapItem> LoadItems() {
             return new List<MapItem>{
-                new Wall(1, 1, 103, 103),
-                new Wall(103, 1, 1, 103)
+                new Wall(-100, -100, 203, 203),
+                new Wall(133, 1, 31, 103)
             };
         }
     }
