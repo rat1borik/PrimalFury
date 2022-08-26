@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using SFML.Window;
 using SFML.Graphics;
 using SFML.System;
@@ -14,6 +15,7 @@ namespace PrimalFury
         // Map and builder
         static Map testMap;
         static TestMapBuilder testBuilder;
+        static Renderer testRenderer;
 
         // Mouse
         static uint MouseX = 0, MouseY = 0; 
@@ -86,9 +88,22 @@ namespace PrimalFury
                 #if DEBUG
                     window.Draw(debugInfo);
                 #endif
+
                 window.Draw(circle);
 
+                var minimap = testMap.GetMapView();
+
+                var inters = Utils.Vectors.Intersection(minimap[0],minimap[1]);
+                
+                // window.Draw(new Vertex[] { new Vertex(new Vector2f(100, 100), Color.Red) , new Vertex(new Vector2f(200, 200), Color.Red) , new Vertex(new Vector2f(400, 500), Color.Red) }, PrimitiveType.LinesStrip);
+
+                testRenderer.DrawLineList(minimap,testMap.MapParams.MapRect);
+
+                window.Draw(new Vertex[] { new Vertex(inters.Item1 + new Vector2f(100, 100), Color.Green) },PrimitiveType.Points);
+
                 RenderHUD();
+
+                
                 // Finally, display the rendered frame on screen
                 window.Display();
             }
@@ -109,13 +124,14 @@ namespace PrimalFury
             window.Closed += Window_Closed;
             window.MouseMoved += Window_MouseMoved;
             window.MouseButtonPressed += Window_MouseButtonPressed;
+
+            testRenderer = new Renderer(window);
         }
 
         private static void PrepareMap() {
             testBuilder = new TestMapBuilder();
             testMap = new Map(testBuilder);
         }
-
 
         private static void Window_MouseButtonPressed(object sender, MouseButtonEventArgs e) {
             MouseKeyPressed = e.Button.ToString();
