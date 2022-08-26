@@ -11,6 +11,10 @@ namespace PrimalFury
 {
     class Global
     {
+        // Map and builder
+        static Map testMap;
+        static TestMapBuilder testBuilder;
+
         // Mouse
         static uint MouseX = 0, MouseY = 0; 
         static int  XDiff=0,YDiff=0;
@@ -32,39 +36,31 @@ namespace PrimalFury
         static string fileCrosshair= "crosshair.png";
         static void Main(string[] args)
         {
-            // get Desktop params
-            WindowWidth = VideoMode.DesktopMode.Width;
-            WindowHeight = VideoMode.DesktopMode.Height;
+            PrepareWindow();
 
-            window=new RenderWindow(new SFML.Window.VideoMode(WindowWidth,WindowHeight), "PrimalFury", Styles.Fullscreen);
-
-            window.SetVerticalSyncEnabled(true);
-            window.SetMouseCursorVisible(false);
-
-            window.KeyPressed += Window_KeyPressed;
-            window.Closed += Window_Closed;
-            window.MouseMoved += Window_MouseMoved;
-            window.MouseButtonPressed += Window_MouseButtonPressed;
-
-            Vector2u crosshairRect=new Vector2u(crosshairRectX, crosshairRectY);
+            // Load all resources temp shit
+            Vector2u crosshairRect = new Vector2u(crosshairRectX, crosshairRectY);
             Image crosshairImg = new Image(fileCrosshair);
-            // Load all resources
+
             crosshair = new Sprite() {
                 Texture = new Texture(fileCrosshair),
                 Position = new Vector2f((int)WindowWidth / 2 - crosshairRect.X / 2, (int)WindowHeight / 2 - crosshairRect.Y / 2),
-                Scale = new Vector2f((float)crosshairRect.X/ (float)crosshairImg.Size.X , (float)crosshairRect.Y / (float)crosshairImg.Size.Y)
+                Scale = new Vector2f((float)crosshairRect.X / (float)crosshairImg.Size.X, (float)crosshairRect.Y / (float)crosshairImg.Size.Y)
             };
 
-            var circle = new CircleShape(500f, 100)
-            {
+            var circle = new CircleShape(500f, 100) {
                 FillColor = Color.Yellow
             };
             var debugInfo = new Text() {
                 Font = new Font("font.otf"),
                 CharacterSize = 14,
                 FillColor = Color.Green,
-                Position = new Vector2f(WindowWidth-200,0)
+                Position = new Vector2f(WindowWidth - 200, 0)
             };
+
+
+            PrepareMap();
+
 
             // Start the game loop
             Mouse.SetPosition(new Vector2i((int)WindowWidth / 2, (int)WindowHeight / 2), window);
@@ -100,6 +96,27 @@ namespace PrimalFury
 
         }
 
+        private static void PrepareWindow() {
+            WindowWidth = VideoMode.DesktopMode.Width;
+            WindowHeight = VideoMode.DesktopMode.Height;
+
+            window = new RenderWindow(new SFML.Window.VideoMode(WindowWidth, WindowHeight), "PrimalFury", Styles.Fullscreen);
+
+            window.SetVerticalSyncEnabled(true);
+            window.SetMouseCursorVisible(false);
+
+            window.KeyPressed += Window_KeyPressed;
+            window.Closed += Window_Closed;
+            window.MouseMoved += Window_MouseMoved;
+            window.MouseButtonPressed += Window_MouseButtonPressed;
+        }
+
+        private static void PrepareMap() {
+            testBuilder = new TestMapBuilder();
+            testMap = new Map(testBuilder);
+        }
+
+
         private static void Window_MouseButtonPressed(object sender, MouseButtonEventArgs e) {
             MouseKeyPressed = e.Button.ToString();
         }
@@ -130,8 +147,7 @@ namespace PrimalFury
             }
             PreviousKey = e.Code.ToString();
             PreviousKeyCount += 1;
-            if (e.Code == Keyboard.Key.Escape)
-            {
+            if (e.Code == Keyboard.Key.Escape){
                 window.Close();
             }
         }

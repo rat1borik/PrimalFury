@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PrimalFury {
-    internal class Player {
+    public class Player {
         public int FOV { get; set; }
         public Player() { }
     }
