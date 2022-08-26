@@ -9,53 +9,55 @@ using SFML.System;
 namespace PrimalFury {
 
     namespace Utils {
-        public static class Vectors {
-            public static bool Contains(Vector2i container, (Vector2i, Vector2i) item) {
-                if (container == null || item.Item1 == null || item.Item2 == null) {
-                    throw new ArgumentNullException("Null is not valid value");
+        namespace MathTools {
+            public static class Vectors {
+                public static bool Contains(Vector2i container, (Vector2i, Vector2i) item) {
+                    if (container == null || item.Item1 == null || item.Item2 == null) {
+                        throw new ArgumentNullException("Null is not valid value");
+                    }
+                    if (Contains(container, item.Item1) && Contains(container, item.Item2)) return true;
+                    return false;
                 }
-                if (Contains(container, item.Item1) && Contains(container, item.Item2)) return true;
-                return false;
-            }
-            public static bool Contains(Vector2i container, Vector2i item) {
-                if (container == null || item == null) {
-                    throw new ArgumentNullException("Null is not valid value");
-                }
-
-                if ((item.X <= container.X
-                    && item.X >= 0)
-                    && (item.Y <= container.Y
-                    && item.Y >= 0
-                    )) return true;
-
-                return false;
-            }
-            public static (Vector2i, Vector2i) Clip(Vector2i container, (Vector2i, Vector2i) item) {
-                if (!Contains(container, item)) {
-                    Vector2i pt1;
-                    Vector2i pt2;
-
-                    if (Contains(container, item.Item1)) {
-                        pt1 = item.Item1;
-                        pt2 = (Vector2i)Intersections(GetContainerLines(container), item)[0];
-                    } else if (Contains(container, item.Item2)) {
-                        pt2 = (Vector2i)Intersections(GetContainerLines(container), item)[0];
-                        pt1 = item.Item2;
-                    } else {
-                        var colls = Intersections(GetContainerLines(container), item);
-                        if (colls.Count == 2) {
-                            pt1 = (Vector2i)colls[0];
-                            pt2 = (Vector2i)colls[1];
-                        } else {
-                            throw new ArgumentException("Cannot clip when both point not in container");
-                        }
+                public static bool Contains(Vector2i container, Vector2i item) {
+                    if (container == null || item == null) {
+                        throw new ArgumentNullException("Null is not valid value");
                     }
 
-                    return (pt1, pt2);
-                } else {
-                    return item;
+                    if ((item.X <= container.X
+                        && item.X >= 0)
+                        && (item.Y <= container.Y
+                        && item.Y >= 0
+                        )) return true;
+
+                    return false;
                 }
-            }
+                public static (Vector2i, Vector2i) Clip(Vector2i container, (Vector2i, Vector2i) item) {
+                    if (!Contains(container, item)) {
+                        Vector2i pt1;
+                        Vector2i pt2;
+
+                        if (Contains(container, item.Item1)) {
+                            pt1 = item.Item1;
+                            pt2 = (Vector2i)Intersections(GetContainerLines(container), item)[0];
+                        } else if (Contains(container, item.Item2)) {
+                            pt2 = (Vector2i)Intersections(GetContainerLines(container), item)[0];
+                            pt1 = item.Item2;
+                        } else {
+                            var colls = Intersections(GetContainerLines(container), item);
+                            if (colls.Count == 2) {
+                                pt1 = (Vector2i)colls[0];
+                                pt2 = (Vector2i)colls[1];
+                            } else {
+                                throw new ArgumentException("Cannot clip when both point not in container");
+                            }
+                        }
+
+                        return (pt1, pt2);
+                    } else {
+                        return item;
+                    }
+                }
+
             public static List<(Vector2i, Vector2i)> GetContainerLines(Vector2i container) {
                 return new List<(Vector2i, Vector2i)>() {(new Vector2i(0, 0), new Vector2i(0, container.Y)),
                                                                             (new Vector2i(0, container.Y), new Vector2i(container.X, container.Y)),
@@ -73,7 +75,7 @@ namespace PrimalFury {
                 return Math.Sign(i1) != Math.Sign(i2);
             }
 
-            public static bool Intersects((Vector2i, Vector2i) l1 , (Vector2i, Vector2i) l2, bool layIsIntersect = false) {
+            public static bool Intersects((Vector2i, Vector2i) l1, (Vector2i, Vector2i) l2, bool layIsIntersect = false) {
 
                 var vec1 = ToVector(l1.Item1, l1.Item2);
                 var vecCheck1 = ToVector(l1.Item1, l2.Item1);
@@ -88,13 +90,13 @@ namespace PrimalFury {
                     }
                     return false;
                 }
-                
+
                 return SignDiff(check1, check2);
             }
 
             // 2nd return value if false signals that no intersection
             // 3rd return value if true signals that lines lays one over one
-            public static (Vector2f,bool,bool) Intersection((Vector2i, Vector2i) l1, (Vector2i, Vector2i) l2, bool layIsIntersect = false) {
+            public static (Vector2f, bool, bool) Intersection((Vector2i, Vector2i) l1, (Vector2i, Vector2i) l2, bool layIsIntersect = false) {
                 bool isLayOnLine = false;
                 bool isLaysOnSameLine = false;
 
@@ -111,7 +113,7 @@ namespace PrimalFury {
                 if (check1 == 0 && check2 == 0) {
                     isLaysOnSameLine = true;
                 }
-                if (isLayOnLine || SignDiff(check1,check2)) {
+                if (isLayOnLine || SignDiff(check1, check2)) {
                     if (isLaysOnSameLine) {
                         return (new Vector2f(), false, true);
                     }
@@ -124,10 +126,10 @@ namespace PrimalFury {
                         }
                         return (new Vector2f(), false, false);
                     }
-                    return (new Vector2f(crossingX, crossingY),true,false);
+                    return (new Vector2f(crossingX, crossingY), true, false);
                 }
 
-                return (new Vector2f(),false, false);
+                return (new Vector2f(), false, false);
             }
 
             public static List<Vector2f> Intersections(List<(Vector2i, Vector2i)> list, (Vector2i, Vector2i) line) {
@@ -143,7 +145,7 @@ namespace PrimalFury {
             public static float Length(Vector2i vec) {
                 return (float)Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y);
             }
-            
+
             public static Vector2i ToVector(Vector2i v1, Vector2i v2) {
                 return v2 - v1;
             }
@@ -156,4 +158,5 @@ namespace PrimalFury {
             }
         }
     }
+}
 }

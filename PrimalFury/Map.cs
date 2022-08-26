@@ -9,7 +9,7 @@ using SFML.Window;
 using SFML.Graphics;
 using SFML.System;
 
-using PrimalFury.Utils;
+using PrimalFury.Utils.MathTools;
 
 namespace PrimalFury
 {   

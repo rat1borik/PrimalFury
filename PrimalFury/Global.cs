@@ -101,7 +101,7 @@ namespace PrimalFury
 
                 var minimap = testMap.GetMapView();
 
-                var inters = Utils.Vectors.Intersection(minimap[0],minimap[1],true);
+                var inters = Utils.MathTools.Vectors.Intersection(minimap[0],minimap[1],true);
                 
                 // window.Draw(new Vertex[] { new Vertex(new Vector2f(100, 100), Color.Red) , new Vertex(new Vector2f(200, 200), Color.Red) , new Vertex(new Vector2f(400, 500), Color.Red) }, PrimitiveType.LinesStrip);
 
