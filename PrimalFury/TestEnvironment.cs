@@ -13,7 +13,7 @@ namespace PrimalFury {
     public class TestMapBuilder : IMapBuilder {
         public MapParams LoadMapParams() {
             return new MapParams {
-                MapRect = new Vector2i(500, 300)
+                MapRect = new Vector2f(500, 300)
             };
         }
 
@@ -25,8 +25,10 @@ namespace PrimalFury {
 
         public List<MapItem> LoadItems() {
             return new List<MapItem>{
-                new Wall(3, 3, 100, 100),
-                new Wall(3, 3, 100, 101)
+                //new Wall(100, 3, 50, 40),
+                new Wall(100, 3, 51.5f, 51.5f),
+                new Wall(3, 3, 100, 100)
+                
             };
         }
 
@@ -34,7 +36,7 @@ namespace PrimalFury {
     public class TestSettingsLoader : ISettingsLoader {
         public Settings Load() {
             return new Settings {
-                MinimapPosition = new Vector2i(1, 1)
+                MinimapPosition = new Vector2f(1, 1)
             };
         }
     }

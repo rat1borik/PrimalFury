@@ -16,6 +16,6 @@ namespace PrimalFury {
     }
     public struct PlayerParams {
         public int FieldOfView; // Degrees
-        public Vector2i StartPosition; // Mapcoords 
+        public Vector2f StartPosition; // Mapcoords 
     }
 }

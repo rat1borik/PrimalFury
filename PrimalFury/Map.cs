@@ -21,7 +21,7 @@ namespace PrimalFury
     }
 
     public interface MapItem {
-        (Vector2i, Vector2i) GetMapView();
+        (Vector2f, Vector2f) GetMapView();
 
         
     }
@@ -49,38 +49,38 @@ namespace PrimalFury
         public MapParams MapParams {
             get { return _mParams; }
         }
-        public List<(Vector2i, Vector2i)> GetMapView() {
+        public List<(Vector2f, Vector2f)> GetMapView() {
 
-            var viewList = new List<(Vector2i, Vector2i)>();
+            var viewList = new List<(Vector2f, Vector2f)>();
 
             foreach (MapItem mI in _items) {
 
-                var clipped = Vectors.Clip(_mParams.MapRect, mI.GetMapView());
+                var clipped = _mParams.MapRect.Clip(mI.GetMapView());
                 viewList.Add(clipped);
 
             }
             viewList = viewList.Concat(
-                Vectors.GetContainerLines(_mParams.MapRect)
+                _mParams.MapRect.GetContainerLines()
                 ).ToList();
             return viewList;
         }
     }
 
     public struct MapParams {
-        public Vector2i MapRect;
+        public Vector2f MapRect;
     }
 
     // Realisations
     public class Wall : MapItem {
 
-        Vector2i _w1;
-        Vector2i _w2;
-        public (Vector2i, Vector2i) GetMapView() {
+        Vector2f _w1;
+        Vector2f _w2;
+        public (Vector2f, Vector2f) GetMapView() {
             return (_w1, _w2);
         }
-        public Wall(int x1, int y1, int x2, int y2) {
-            _w1 = new Vector2i(x1, y1);
-            _w2 = new Vector2i(x2, y2);
+        public Wall(float x1, float y1, float x2, float y2) {
+            _w1 = new Vector2f(x1, y1);
+            _w2 = new Vector2f(x2, y2);
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
             }

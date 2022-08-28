@@ -16,7 +16,7 @@ namespace PrimalFury {
             if (r == null) throw new ArgumentNullException("renderWindow is null");
             _rWnd = r;
         }
-        public void DrawLineList(List<(Vector2i, Vector2i)> list) {
+        public void DrawLineList(List<(Vector2f, Vector2f)> list) {
             foreach (var item in list) {
                 _rWnd.Draw(new Vertex[] {
                     new Vertex((Vector2f)item.Item1, Color.White),
@@ -24,7 +24,7 @@ namespace PrimalFury {
                 }, PrimitiveType.Lines);
             }
         }
-        public void DrawLineList(List<(Vector2i, Vector2i)> list, Vector2i position) {
+        public void DrawLineList(List<(Vector2f, Vector2f)> list, Vector2f position) {
             foreach (var item in list) { 
                 _rWnd.Draw(new Vertex[] {
                     new Vertex((Vector2f)(item.Item1 + position), Color.White),

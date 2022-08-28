@@ -10,7 +10,7 @@ using SFML.System;
 
 namespace PrimalFury {
     public struct Settings { 
-        public Vector2i MinimapPosition{ get; set; }
+        public Vector2f MinimapPosition{ get; set; }
     }
 
     interface ISettingsLoader {
