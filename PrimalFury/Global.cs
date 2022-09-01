@@ -99,22 +99,14 @@ namespace PrimalFury
 
                 window.Draw(circle);
 
-                var minimap = testMap.GetMapView();
+               
 
-                var isInters = Utils.MathTools.Intersectables.Intersects(minimap[0], minimap[1]);
-                var inters = Utils.MathTools.Intersectables.GetIntersection(minimap[0], minimap[1]);
+                
 
-                // window.Draw(new Vertex[] { new Vertex(new Vector2f(100, 100), Color.Red) , new Vertex(new Vector2f(200, 200), Color.Red) , new Vertex(new Vector2f(400, 500), Color.Red) }, PrimitiveType.LinesStrip);
-
-                testRenderer.DrawLineList(minimap,settings.MinimapPosition);
-
-                if (inters.HasIntersection){
-                    window.Draw(new CircleShape(4f, 12) {
-                        FillColor = Color.Red,
-                        Position = inters.Get() + (Vector2f)settings.MinimapPosition - new Vector2f(4,4)
-                    });
-                }
                 RenderHUD();
+
+               
+                
 
                 
                 // Finally, display the rendered frame on screen
@@ -181,6 +173,23 @@ namespace PrimalFury
             }
         }
         private static void RenderHUD() {
+            var minimap = testMap.GetMapView();
+
+            testRenderer.DrawLineList(minimap, settings.MinimapPosition);
+            
+            
+            var isInters = Utils.MathTools.Intersectables.Intersects(minimap[0], minimap[1]);
+            var inters = Utils.MathTools.Intersectables.GetIntersection(minimap[0], minimap[1]);
+            if (inters.HasIntersection) {
+                window.Draw(new CircleShape(4f, 12) {
+                    FillColor = Color.Red,
+                    Position = inters.Get() + (Vector2f)settings.MinimapPosition - new Vector2f(4, 4)
+                });
+            }
+
+            
+
+            // window.Draw(new Vertex[] { new Vertex(new Vector2f(100, 100), Color.Red) , new Vertex(new Vector2f(200, 200), Color.Red) , new Vertex(new Vector2f(400, 500), Color.Red) }, PrimitiveType.LinesStrip);
             window.Draw(crosshair);
         }
     }
