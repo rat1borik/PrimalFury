@@ -139,22 +139,36 @@ namespace PrimalFury {
 
                 public static bool Contains(this (Vector2f, Vector2f) container, (Vector2f, Vector2f) cut2) {
                     return new Line(container).GetIntersection(new Line(cut2)).IsLaysOnSameVector
-                        && (container.Item1.X.Lowest(container.Item2.X) - cut2.Item1.X) <= 0
-                        && (container.Item1.X.Greatest(container.Item2.X) - cut2.Item2.X) >= 0;
+                        && RectContains(container, cut2);
                 }
 
                 public static bool Contains(this (Vector2f, Vector2f) container, Vector2f pt) {
                     var p1 = new Line(container).Contains(pt);
+                    return p1 && RectContains(container, pt);      
+                }
+                public static bool RectContains(this (Vector2f, Vector2f) container, Vector2f pt) {
                     if (container.ToVector().X == 0) {
                         var p4 = (container.Item1.Y.Lowest(container.Item2.Y) - pt.Y) <= 0;
                         var p5 = (container.Item1.Y.Greatest(container.Item2.Y) - pt.Y) >= 0;
-                        return p1 && p4 && p5;
+                        return p4 && p5;
                     } else {
                         var p2 = (container.Item1.X.Lowest(container.Item2.X) - pt.X) <= 0;
                         var p3 = (container.Item1.X.Greatest(container.Item2.X) - pt.X) >= 0;
-                        return p1 && p2 && p3;
-                    }      
+                        return p2 && p3;
+                    }
                 }
+                public static bool RectContains(this (Vector2f, Vector2f) container, (Vector2f, Vector2f) cut2) {
+                    if (container.ToVector().X == 0) {
+                        var p4 = (container.Item1.Y.Lowest(container.Item2.Y) - cut2.Item1.Y) <= 0;
+                        var p5 = (container.Item1.Y.Greatest(container.Item2.Y) - cut2.Item2.Y) >= 0;
+                        return p4 && p5;
+                    } else {
+                        var p2 = (container.Item1.X.Lowest(container.Item2.X) - cut2.Item1.X) <= 0;
+                        var p3 = (container.Item1.X.Greatest(container.Item2.X) - cut2.Item2.X) >= 0;
+                        return p2 && p3;
+                    }
+                }
+
                 public static bool Intersects(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2) {
                     Intersection i = new Line(cut1).GetIntersection(new Line(cut2));
                     return i.HasIntersection && cut1.Contains(i.PointOfIntersection) && cut2.Contains(i.PointOfIntersection);
@@ -162,9 +176,9 @@ namespace PrimalFury {
                 public static Intersection GetIntersection(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2) {
                     Intersection i = new Line(cut1).GetIntersection(new Line(cut2));
                     if (i.HasIntersection) {
-                        var p1 = cut1.Contains(i.PointOfIntersection);
+                        var p1 = cut1.RectContains(i.PointOfIntersection);
 
-                        var p2 = cut2.Contains(i.PointOfIntersection);
+                        var p2 = cut2.RectContains(i.PointOfIntersection);
                         if (p1 && p2)
                             return i;
                     }
