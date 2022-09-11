@@ -12,10 +12,28 @@ namespace PrimalFury {
         PlayerParams _pParams;
         public Player(PlayerParams p) {
             _pParams = p;
+            MapPosition = p.StartPosition;
         }
-    }
+        public Vector2f MapPosition {
+            get; set;
+        }
+        public float FieldOfView {
+            get {
+                return _pParams.FieldOfView;
+            }
+        }
+        public Vector2f ViewDirection {
+            get; set;
+        }
+        public (Vector2f, Vector2f) ViewNormal {
+            get {
+                return (this.MapPosition, this.MapPosition + this.ViewDirection);
+            }
+        }
+
+}
     public struct PlayerParams {
-        public int FieldOfView; // Degrees
-        public Vector2f StartPosition; // Mapcoords 
+        public float FieldOfView; // Degrees
+        public Vector2f StartPosition; // Mapcoords
     }
 }

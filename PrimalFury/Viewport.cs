@@ -9,7 +9,7 @@ using SFML.System;
 
 namespace PrimalFury {
     internal class Viewport {
-        public Viewport(Vector2u screen, Player p) {
+        public Viewport(RenderWindow rw, Player p) {
 
         }
     }

@@ -9,9 +9,11 @@ using SFML.Graphics;
 using SFML.System;
 
 namespace PrimalFury {
-    internal class Renderer {
+    public class Renderer {
 
+        float circleDetalisationFactor = 3;
         RenderWindow _rWnd;
+        public RenderWindow RWindow { get { return _rWnd; } }
         public Renderer(RenderWindow r) {
             if (r == null) throw new ArgumentNullException("renderWindow is null");
             _rWnd = r;
@@ -32,6 +34,18 @@ namespace PrimalFury {
                 }, PrimitiveType.Lines);
           
             }
+        }
+        public void Draw(List<Drawable> list, Vector2f position) {
+            foreach (var item in list) {
+                item.Draw(_rWnd, RenderStates.Default);
+            }
+        }
+
+        public void DrawCircle(float radius, Color fillColor, Vector2f pos) {
+            _rWnd.Draw(new CircleShape(radius, (uint)Math.Round(circleDetalisationFactor * radius)) {
+                FillColor = fillColor,
+                Position = pos - new Vector2f(radius,radius),
+            });
         }
     }
 }

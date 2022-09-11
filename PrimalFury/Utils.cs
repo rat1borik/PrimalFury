@@ -99,7 +99,8 @@ namespace PrimalFury {
                 }
 
                 public bool Contains(Vector2f pt) {
-                    return this.A * pt.X + this.B * pt.Y + this.C == 0;
+                    
+                    return Math.Round(this.A * pt.X + this.B * pt.Y + this.C) == 0;
                 }
 
                 public bool Intersects(Line l) {
@@ -143,9 +144,16 @@ namespace PrimalFury {
                 }
 
                 public static bool Contains(this (Vector2f, Vector2f) container, Vector2f pt) {
-                    return new Line(container).Contains(pt)
-                        && (container.Item1.X.Lowest(container.Item2.X) - pt.X) <= 0
-                        && (container.Item1.X.Greatest(container.Item2.X) - pt.X) >= 0;
+                    var p1 = new Line(container).Contains(pt);
+                    if (container.ToVector().X == 0) {
+                        var p4 = (container.Item1.Y.Lowest(container.Item2.Y) - pt.Y) <= 0;
+                        var p5 = (container.Item1.Y.Greatest(container.Item2.Y) - pt.Y) >= 0;
+                        return p1 && p4 && p5;
+                    } else {
+                        var p2 = (container.Item1.X.Lowest(container.Item2.X) - pt.X) <= 0;
+                        var p3 = (container.Item1.X.Greatest(container.Item2.X) - pt.X) >= 0;
+                        return p1 && p2 && p3;
+                    }      
                 }
                 public static bool Intersects(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2) {
                     Intersection i = new Line(cut1).GetIntersection(new Line(cut2));
@@ -153,7 +161,13 @@ namespace PrimalFury {
                 }
                 public static Intersection GetIntersection(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2) {
                     Intersection i = new Line(cut1).GetIntersection(new Line(cut2));
-                    if(i.HasIntersection && cut1.Contains(i.PointOfIntersection) && cut2.Contains(i.PointOfIntersection))return i;
+                    if (i.HasIntersection) {
+                        var p1 = cut1.Contains(i.PointOfIntersection);
+
+                        var p2 = cut2.Contains(i.PointOfIntersection);
+                        if (p1 && p2)
+                            return i;
+                    }
                     return Intersection.NoIntersection();
                 }
 
@@ -202,11 +216,15 @@ namespace PrimalFury {
                         Vector2f pt1;
                         Vector2f pt2;
 
+                        var inters = GetContainerLines(container).Intersections(item);
+
                         if (Contains(container, item.Item1)) {
                             pt1 = item.Item1;
-                            pt2 = GetContainerLines(container).Intersections(item)[0];
+                            if (inters.Count > 0) pt2 = inters[0];
+                            else pt2 = item.Item2;
                         } else if (Contains(container, item.Item2)) {
-                            pt2 = GetContainerLines(container).Intersections(item)[0];
+                            if (inters.Count > 0) pt2 = inters[0];
+                            else pt2 = item.Item1;
                             pt1 = item.Item2;
                         } else {
                             var colls = GetContainerLines(container).Intersections(item);
@@ -224,7 +242,11 @@ namespace PrimalFury {
                     }
                 }
             }
-
+            public static class Radians {
+                public static float ToRadians(this float gr) {
+                    return (float)(gr * Math.PI / 180);
+                }
+            }
             public static class Vectors {
                 // legacy
                 //public static bool Intersects((Vector2f, Vector2f) l1, (Vector2f, Vector2f) l2, bool layIsIntersect = false) {
@@ -317,12 +339,29 @@ namespace PrimalFury {
                 public static Vector2f ToVector(this Vector2f v1, Vector2f v2) {
                     return v2 - v1;
                 }
+                public static Vector2f ToVector(this (Vector2f, Vector2f) v1) {
+                    return v1.Item2 - v1.Item1;
+                }
 
                 public static float Cross(this Vector2f v1, Vector2f v2) {
                     return v1.X * v2.Y - v1.Y * v2.X;
                 }
+
                 public static float Dot(this Vector2f v1, Vector2f v2) {
                     return v1.X * v2.X + v1.Y * v2.Y;
+                }
+
+                public static Vector2f Rotate(this Vector2f v1, float deg) {
+                    deg = deg.ToRadians();
+                    return new Vector2f(v1.X * (float)Math.Cos(deg) - v1.Y*(float)Math.Sin(deg)
+                                        , v1.X * (float)Math.Sin(deg) + v1.Y * (float)Math.Cos(deg));
+                }
+
+                public static (Vector2f,Vector2f) Rotate(this (Vector2f,Vector2f) v1, float deg) {
+                    deg = deg.ToRadians();
+                    var vec = v1.ToVector();
+                    return new ValueTuple<Vector2f, Vector2f>(v1.Item1,v1.Item1 + new Vector2f(vec.X * (float)Math.Cos(deg) - vec.Y * (float)Math.Sin(deg)
+                                        , vec.X * (float)Math.Sin(deg) + vec.Y * (float)Math.Cos(deg)));
                 }
             }
         }

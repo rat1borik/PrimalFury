@@ -15,26 +15,30 @@ namespace PrimalFury
 {   
     // Interfaces
     public interface IMapBuilder {
-        List<MapItem> LoadItems();
+        List<IMapItem> LoadItems();
         Player LoadPlayer();
         MapParams LoadMapParams();
     }
 
-    public interface MapItem {
-        (Vector2f, Vector2f) GetMapView();
+    public interface IMapItem {
+        (Vector2f, Vector2f) GetMinimapView();
 
         
     }
+    public interface IMinimap {
+        List<(Vector2f, Vector2f)> GetLines();
+        void Draw(Renderer r, Vector2f shift);
+    }
 
     // Standart classes
-    public class Map : IEnumerable<MapItem>
+    public class Map : IEnumerable<IMapItem>
     {
-        List<MapItem> _items;
+        List<IMapItem> _items;
         Player _player;
         MapParams _mParams;
 
-        IEnumerator<MapItem> IEnumerable<MapItem>.GetEnumerator() {
-            return ((IEnumerable<MapItem>)_items).GetEnumerator();
+        IEnumerator<IMapItem> IEnumerable<IMapItem>.GetEnumerator() {
+            return ((IEnumerable<IMapItem>)_items).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
@@ -45,37 +49,36 @@ namespace PrimalFury
             _mParams = mb.LoadMapParams();
             _items = mb.LoadItems();
             _player = mb.LoadPlayer();
+            if (!_mParams.MapRect.Contains(_player.MapPosition)) {
+                _player.MapPosition = new Vector2f();
+            }
         }
         public MapParams MapParams {
             get { return _mParams; }
         }
-        public List<(Vector2f, Vector2f)> GetMapView() {
 
-            var viewList = new List<(Vector2f, Vector2f)>();
-
-            foreach (MapItem mI in _items) {
-
-                var clipped = _mParams.MapRect.Clip(mI.GetMapView());
-                viewList.Add(clipped);
-
-            }
-            viewList = viewList.Concat(
-                _mParams.MapRect.GetContainerLines()
-                ).ToList();
-            return viewList;
+        public Player Player {
+            get { return _player; }
         }
+
+        public List<IMapItem> Items { 
+            get { return _items; } 
+        }
+
     }
 
+    // Structs
+   
     public struct MapParams {
         public Vector2f MapRect;
     }
 
     // Realisations
-    public class Wall : MapItem {
+    public class Wall : IMapItem {
 
         Vector2f _w1;
         Vector2f _w2;
-        public (Vector2f, Vector2f) GetMapView() {
+        public (Vector2f, Vector2f) GetMinimapView() {
             return (_w1, _w2);
         }
         public Wall(float x1, float y1, float x2, float y2) {

@@ -8,6 +8,8 @@ using SFML.Window;
 using SFML.Graphics;
 using SFML.System;
 
+using PrimalFury.Utils.MathTools;
+
 namespace PrimalFury {
     //Test shit
     public class TestMapBuilder : IMapBuilder {
@@ -19,12 +21,13 @@ namespace PrimalFury {
 
         public Player LoadPlayer() {
             return new Player(new PlayerParams {
-                FieldOfView = 90
+                FieldOfView = 60,
+                StartPosition = new Vector2f(50,100)
             });
         }
 
-        public List<MapItem> LoadItems() {
-            return new List<MapItem>{
+        public List<IMapItem> LoadItems() {
+            return new List<IMapItem>{
                 //new Wall(100, 3, 50, 40),
                 new Wall(100, 3, 51.5f, 51.5f),
                 new Wall(3, 3, 100, 100)
@@ -36,8 +39,41 @@ namespace PrimalFury {
     public class TestSettingsLoader : ISettingsLoader {
         public Settings Load() {
             return new Settings {
-                MinimapPosition = new Vector2f(1, 1)
+                MinimapPosition = new Vector2f(10, 10)
             };
+        }
+    }
+ 
+    public class TestMinimap : IMinimap {
+
+        Map _m;
+        List<(Vector2f, Vector2f)> _viewlist;
+        public List<(Vector2f, Vector2f)> GetLines() { return _viewlist; }
+        public TestMinimap(Map m) {
+            _m = m;
+
+            _viewlist = new List<(Vector2f, Vector2f)>();
+
+            foreach (IMapItem mI in _m.Items) {
+
+                var clipped = _m.MapParams.MapRect.Clip(mI.GetMinimapView());
+                _viewlist.Add(clipped);
+
+            }
+
+            _viewlist = _viewlist.Concat(
+                _m.MapParams.MapRect.GetContainerLines()
+                ).ToList();
+
+        }
+        public void Draw(Renderer r, Vector2f shift) {
+            r.DrawLineList(_viewlist, shift);
+            r.DrawCircle(2, Color.Green, _m.Player.MapPosition + shift);
+            var playerView = new List<(Vector2f, Vector2f)>();
+            var vn = (_m.Player.ViewNormal.Item1, _m.Player.ViewNormal.Item1 + _m.Player.ViewNormal.ToVector() * 1000);
+            playerView.Add(_m.MapParams.MapRect.Clip(vn.Rotate(_m.Player.FieldOfView / 2)));
+            playerView.Add(_m.MapParams.MapRect.Clip(vn.Rotate(-_m.Player.FieldOfView / 2)));
+            r.DrawLineList(playerView, shift);
         }
     }
 }

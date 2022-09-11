@@ -8,13 +8,16 @@ using SFML.Window;
 using SFML.Graphics;
 using SFML.System;
 
+using PrimalFury.Utils.MathTools;
+
 namespace PrimalFury
 {
     class Global
     {
         // Map and builder
         static Map testMap;
-        static TestMapBuilder testBuilder;
+        static IMinimap testMiniMap;
+        static IMapBuilder testBuilder;
         static Renderer testRenderer;
 
         //Settings
@@ -136,6 +139,8 @@ namespace PrimalFury
         private static void PrepareMap() {
             testBuilder = new TestMapBuilder();
             testMap = new Map(testBuilder);
+            testMiniMap = new TestMinimap(testMap);
+            testMap.Player.ViewDirection = new Vector2f(-1, 1);
         }
 
         private static void Window_MouseButtonPressed(object sender, MouseButtonEventArgs e) {
@@ -168,14 +173,23 @@ namespace PrimalFury
             }
             PreviousKey = e.Code.ToString();
             PreviousKeyCount += 1;
-            if (e.Code == Keyboard.Key.Escape){
+            if (e.Code == Keyboard.Key.Escape) {
                 window.Close();
+            } if (e.Code == Keyboard.Key.A) {
+                testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(-1);
+            } if (e.Code == Keyboard.Key.D) {
+                testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(1);
+            } if (e.Code == Keyboard.Key.W) {
+                testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection*5;
+            } if (e.Code == Keyboard.Key.S) {
+                testMap.Player.MapPosition = testMap.Player.MapPosition - testMap.Player.ViewDirection*5;
             }
         }
         private static void RenderHUD() {
-            var minimap = testMap.GetMapView();
+            var minimap = testMiniMap.GetLines();
+            testMiniMap.Draw(testRenderer,settings.MinimapPosition);
 
-            testRenderer.DrawLineList(minimap, settings.MinimapPosition);
+            //testRenderer.DrawLineList(minimap, settings.MinimapPosition);
             
             
             var isInters = Utils.MathTools.Intersectables.Intersects(minimap[0], minimap[1]);
