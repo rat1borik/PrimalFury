@@ -262,6 +262,13 @@ namespace PrimalFury {
                 }
             }
             public static class Vectors {
+                
+                public enum Side {
+                    None,
+                    Left = 1,
+                    Right = -1,
+                    OnVector = 0
+                }
                 // legacy
                 //public static bool Intersects((Vector2f, Vector2f) l1, (Vector2f, Vector2f) l2, bool layIsIntersect = false) {
 
@@ -376,6 +383,13 @@ namespace PrimalFury {
                     var vec = v1.ToVector();
                     return new ValueTuple<Vector2f, Vector2f>(v1.Item1,v1.Item1 + new Vector2f(vec.X * (float)Math.Cos(deg) - vec.Y * (float)Math.Sin(deg)
                                         , vec.X * (float)Math.Sin(deg) + vec.Y * (float)Math.Cos(deg)));
+                }
+
+                // -1 - right
+                //  0 - on same vector
+                //  1 - left
+                public static Side PtFace(this (Vector2f, Vector2f) line, Vector2f pt) {
+                    return (Side)Math.Sign(line.ToVector().Cross(pt - line.Item1));
                 }
             }
         }

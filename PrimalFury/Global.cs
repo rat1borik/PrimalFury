@@ -102,9 +102,9 @@ namespace PrimalFury
 
                 window.Draw(circle);
 
-               
 
-                
+                // Test SideDefining
+                // Utils.MathTools.Vectors.Side a =  (new Vector2f(1, 0), new Vector2f(4, 3)).PtFace(new Vector2f(1,1));
 
                 RenderHUD();
 
