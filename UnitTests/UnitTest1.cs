@@ -53,5 +53,37 @@ namespace PrimalFury.Tests {
 
             Assert.AreEqual(Expected3, string.Join(" ", travRes));
         }
+
+        private const string Expected4 = "grasshopper0 rose2 bumblebee1 butterfly2";
+        [TestMethod()]
+        public void HardTestWithDepth() {
+            var nodelev1left = new BSPNode<string>("rose");
+            var nodelev1right = new BSPNode<string>("butterfly");
+            var nodelev2left = new BSPNode<string>("bumblebee", nodelev1left, nodelev1right);
+            var nodelev3 = new BSPNode<string>("grasshopper", nodelev2left, null);
+
+
+            var travRes = new List<string>();
+
+            foreach (var leaf in nodelev3.TraverseWithDepth((left, right) => left?.Length < right?.Length)) {
+                travRes.Add(leaf.Item1.ToString()+leaf.Item2.ToString());
+            }
+
+            Assert.AreEqual(Expected4, string.Join(" ", travRes));
+        }
+
+        private const string Expected5 = "0 grasshopper\n1 bumblebee\n2 rose butterfly";
+        [TestMethod()]
+        public void HardTestDisplay() {
+            var nodelev1left = new BSPNode<string>("rose");
+            var nodelev1right = new BSPNode<string>("butterfly");
+            var nodelev2left = new BSPNode<string>("bumblebee", nodelev1left, nodelev1right);
+            var nodelev3 = new BSPNode<string>("grasshopper", nodelev2left, null);
+
+
+            var travRes = nodelev3.GetView();
+
+            Assert.AreEqual(Expected5, travRes);
+        }
     }
 }
