@@ -10,7 +10,7 @@ using SFML.System;
 namespace PrimalFury {
     internal class Viewport {
         public Viewport(RenderWindow rw, Player p) {
-
+           // BSPNode<Wall> node = new BSPNode<Wall>();    
         }
     }
 }
