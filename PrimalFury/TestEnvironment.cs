@@ -13,6 +13,7 @@ using PrimalFury.Utils.MathTools;
 namespace PrimalFury {
     //Test shit
     public class TestMapBuilder : IMapBuilder {
+        List<IMapItem> _items;
         public MapParams LoadMapParams() {
             return new MapParams {
                 MapRect = new Vector2f(500, 300)
@@ -26,22 +27,40 @@ namespace PrimalFury {
             });
         }
 
-        public List<IMapItem> LoadItems() {
-            var items = new List<IMapItem>();
-                //new Wall(100, 3, 50, 40),
-                //new Wall(100, 3, 51.5f, 51.5f),
-                //new Wall(3, 3, 100, 100)
-            items.AddRange(new Vector2f(100, 100).GetContainerLines(new Vector2f(100, 100)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
-            items.AddRange(new Vector2f(30, 30).GetContainerLines(new Vector2f(300, 150)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
-            items.AddRange(new Vector2f(30, 30).GetContainerLines(new Vector2f(250, 200)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
-            items.AddRange(new Vector2f(80, 100).GetContainerLines(new Vector2f(10, 10)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
-            items.AddRange(new Vector2f(20, 30).GetContainerLines(new Vector2f(400, 200)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+        public TestMapBuilder() {
+            _items = new List<IMapItem>();
+            //new Wall(100, 3, 50, 40),
+            //new Wall(100, 3, 51.5f, 51.5f),
+            //new Wall(3, 3, 100, 100)
+            _items.AddRange(new Vector2f(100, 100).GetContainerLines(new Vector2f(100, 100)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            _items.AddRange(new Vector2f(30, 30).GetContainerLines(new Vector2f(300, 150)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            _items.AddRange(new Vector2f(30, 30).GetContainerLines(new Vector2f(250, 200)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            _items.AddRange(new Vector2f(80, 100).GetContainerLines(new Vector2f(10, 10)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            _items.AddRange(new Vector2f(20, 30).GetContainerLines(new Vector2f(400, 200)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+        }
 
-            return items;
+        public List<IMapItem> LoadItems() {
+            return _items;
         }
 
         public BSPNode<Wall> LoadBSPTree() {
-            return null;
+            return BSPTreeGen(_items.Where(item => item is Wall).Cast<Wall>().ToList());
+        }
+
+        public BSPNode<Wall> BSPTreeGen(List<Wall> items) {
+            if (items.Count == 0) return null;
+
+            var left = new List<Wall>();
+            var right = new List<Wall>();
+
+            var divider = items[0]; // TODO: Smart defining of divider
+
+
+            foreach (var item in items.Where(item => item != divider)) {
+                if (divider.GetCoords().PtFace(item.GetCoords().Item1) == Vectors.Side.Left) left.Add(item);
+                else right.Add(item);
+            }
+            return new BSPNode<Wall>(divider, BSPTreeGen(left), BSPTreeGen(right));
         }
 
     }
@@ -65,7 +84,7 @@ namespace PrimalFury {
 
             foreach (IMapItem mI in _m.Items) {
 
-                var clipped = _m.MapParams.MapRect.Clip(mI.GetMinimapView());
+                var clipped = _m.MapParams.MapRect.Clip(mI.GetCoords());
                 _viewlist.Add(clipped);
 
             }

@@ -22,7 +22,7 @@ namespace PrimalFury
     }
 
     public interface IMapItem {
-        (Vector2f, Vector2f) GetMinimapView();
+        (Vector2f, Vector2f) GetCoords();
 
         
     }
@@ -40,10 +40,13 @@ namespace PrimalFury
         MapParams _mParams;
 
         public Map(IMapBuilder mb) {
+
             _mParams = mb.LoadMapParams();
             _items = mb.LoadItems();
             _bspTree = mb.LoadBSPTree();
+            Console.WriteLine(_bspTree.GetView());
             _player = mb.LoadPlayer();
+            
             if (!_mParams.MapRect.Contains(_player.MapPosition)) {
                 _player.MapPosition = new Vector2f();
             }
@@ -73,7 +76,7 @@ namespace PrimalFury
 
         Vector2f _w1;
         Vector2f _w2;
-        public (Vector2f, Vector2f) GetMinimapView() {
+        public (Vector2f, Vector2f) GetCoords() {
             return (_w1, _w2);
         }
         public Wall(float x1, float y1, float x2, float y2) {
@@ -96,6 +99,10 @@ namespace PrimalFury
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
             }
+        }
+
+        public override string ToString() {
+            return string.Format("({0},{1})->({2},{3})", _w1.X.ToString(), _w1.Y.ToString(), _w2.X.ToString(), _w2.Y.ToString());
         }
 
     }
