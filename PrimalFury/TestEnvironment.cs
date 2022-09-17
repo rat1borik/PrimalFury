@@ -21,18 +21,27 @@ namespace PrimalFury {
 
         public Player LoadPlayer() {
             return new Player(new PlayerParams {
-                FieldOfView = 60,
-                StartPosition = new Vector2f(50,100)
+                FieldOfView = 80,
+                StartPosition = new Vector2f(400,50)
             });
         }
 
         public List<IMapItem> LoadItems() {
-            return new List<IMapItem>{
+            var items = new List<IMapItem>();
                 //new Wall(100, 3, 50, 40),
-                new Wall(100, 3, 51.5f, 51.5f),
-                new Wall(3, 3, 100, 100)
-                
-            };
+                //new Wall(100, 3, 51.5f, 51.5f),
+                //new Wall(3, 3, 100, 100)
+            items.AddRange(new Vector2f(100, 100).GetContainerLines(new Vector2f(100, 100)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            items.AddRange(new Vector2f(30, 30).GetContainerLines(new Vector2f(300, 150)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            items.AddRange(new Vector2f(30, 30).GetContainerLines(new Vector2f(250, 200)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            items.AddRange(new Vector2f(80, 100).GetContainerLines(new Vector2f(10, 10)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            items.AddRange(new Vector2f(20, 30).GetContainerLines(new Vector2f(400, 200)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+
+            return items;
+        }
+
+        public BSPNode<Wall> LoadBSPTree() {
+            return null;
         }
 
     }

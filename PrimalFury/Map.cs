@@ -18,6 +18,7 @@ namespace PrimalFury
         List<IMapItem> LoadItems();
         Player LoadPlayer();
         MapParams LoadMapParams();
+        BSPNode<Wall> LoadBSPTree();
     }
 
     public interface IMapItem {
@@ -31,23 +32,17 @@ namespace PrimalFury
     }
 
     // Standart classes
-    public class Map : IEnumerable<IMapItem>
+    public class Map
     {
         List<IMapItem> _items;
+        BSPNode<Wall> _bspTree;
         Player _player;
         MapParams _mParams;
-
-        IEnumerator<IMapItem> IEnumerable<IMapItem>.GetEnumerator() {
-            return ((IEnumerable<IMapItem>)_items).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() {
-            return ((IEnumerable)_items).GetEnumerator();
-        }
 
         public Map(IMapBuilder mb) {
             _mParams = mb.LoadMapParams();
             _items = mb.LoadItems();
+            _bspTree = mb.LoadBSPTree();
             _player = mb.LoadPlayer();
             if (!_mParams.MapRect.Contains(_player.MapPosition)) {
                 _player.MapPosition = new Vector2f();
@@ -84,6 +79,20 @@ namespace PrimalFury
         public Wall(float x1, float y1, float x2, float y2) {
             _w1 = new Vector2f(x1, y1);
             _w2 = new Vector2f(x2, y2);
+            if (_w1 == _w2) {
+                throw new ArgumentException("Стена не может быть точкой");
+            }
+        }
+        public Wall(Vector2f wCoord1, Vector2f wCoord2) {
+            _w1 = wCoord1;
+            _w2 = wCoord2;
+            if (_w1 == _w2) {
+                throw new ArgumentException("Стена не может быть точкой");
+            }
+        }
+        public Wall((Vector2f , Vector2f ) w) {
+            _w1 = w.Item1;
+            _w2 = w.Item2;
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
             }

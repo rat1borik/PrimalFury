@@ -225,6 +225,13 @@ namespace PrimalFury {
                                                                                 (new Vector2f(container.X, 0), new Vector2f(0, 0)) };
                 }
 
+                public static List<(Vector2f, Vector2f)> GetContainerLines(this Vector2f container, Vector2f begCoord) {
+                    return new List<(Vector2f, Vector2f)>() {(begCoord, new Vector2f(begCoord.X, container.Y + begCoord.Y)),
+                                                                                (new Vector2f(begCoord.X, container.Y + begCoord.Y), new Vector2f(container.X + begCoord.X, container.Y + begCoord.Y)),
+                                                                                (new Vector2f(container.X + begCoord.X, container.Y + begCoord.Y), new Vector2f(container.X + begCoord.X, begCoord.Y)),
+                                                                                (new Vector2f(container.X + begCoord.X, begCoord.Y), begCoord) };
+                }
+
                 public static (Vector2f, Vector2f) Clip(this Vector2f container, (Vector2f, Vector2f) item) {
                     if (!Contains(container, item)) {
                         Vector2f pt1;
@@ -246,7 +253,8 @@ namespace PrimalFury {
                                 pt1 = (Vector2f)colls[0];
                                 pt2 = (Vector2f)colls[1];
                             } else {
-                                throw new ArgumentException("Cannot clip when both point not in container");
+                                return item;
+                                //throw new ArgumentException("Cannot clip when both point not in container");
                             }
                         }
 
