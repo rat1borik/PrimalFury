@@ -275,7 +275,8 @@ namespace PrimalFury {
                     None,
                     Left = 1,
                     Right = -1,
-                    OnVector = 0
+                    OnVector = 0,
+                    Intersects = 2
                 }
                 // legacy
                 //public static bool Intersects((Vector2f, Vector2f) l1, (Vector2f, Vector2f) l2, bool layIsIntersect = false) {
@@ -386,6 +387,7 @@ namespace PrimalFury {
                                         , v1.X * (float)Math.Sin(deg) + v1.Y * (float)Math.Cos(deg));
                 }
 
+                // Rotates counterclockwise 
                 public static (Vector2f,Vector2f) Rotate(this (Vector2f,Vector2f) v1, float deg) {
                     deg = deg.ToRadians();
                     var vec = v1.ToVector();
@@ -398,6 +400,11 @@ namespace PrimalFury {
                 //  1 - left
                 public static Side PtFace(this (Vector2f, Vector2f) line, Vector2f pt) {
                     return (Side)Math.Sign(line.ToVector().Cross(pt - line.Item1));
+                }
+
+                public static Side CutFace(this (Vector2f, Vector2f) line, (Vector2f, Vector2f) line2) {
+                    if (Math.Sign(line.ToVector().Cross(line2.Item1 - line.Item1)) != Math.Sign(line.ToVector().Cross(line2.Item2 - line.Item1))) return Side.Intersects;
+                    return (Side)Math.Sign(line.ToVector().Cross(line2.Item1 - line.Item1));
                 }
             }
         }

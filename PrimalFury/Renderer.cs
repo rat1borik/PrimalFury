@@ -14,6 +14,12 @@ namespace PrimalFury {
         float circleDetalisationFactor = 3;
         RenderWindow _rWnd;
         public RenderWindow RWindow { get { return _rWnd; } }
+
+        public Vector2f RWndCenter {
+            get {
+                return (Vector2f)_rWnd.Size / 2;
+            }
+        }
         public Renderer(RenderWindow r) {
             if (r == null) throw new ArgumentNullException("renderWindow is null");
             _rWnd = r;

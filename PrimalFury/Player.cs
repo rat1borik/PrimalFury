@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using SFML.System;
 
+using PrimalFury.Utils.MathTools;
+
 namespace PrimalFury {
     public class Player {
         
@@ -31,7 +33,15 @@ namespace PrimalFury {
             }
         }
 
-}
+        public List<(Vector2f,Vector2f)> ViewRange {
+            get {
+                return new List<(Vector2f, Vector2f)> {
+                    this.ViewNormal.Rotate(this.FieldOfView / 2),
+                    this.ViewNormal.Rotate(-this.FieldOfView / 2)
+                };
+            }
+        }
+    }
     public struct PlayerParams {
         public float FieldOfView; // Degrees
         public Vector2f StartPosition; // Mapcoords

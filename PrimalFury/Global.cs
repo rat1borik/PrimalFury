@@ -18,6 +18,7 @@ namespace PrimalFury
         static Map testMap;
         static IMinimap testMiniMap;
         static IMapBuilder testBuilder;
+        static Viewport vp;
         static Renderer testRenderer;
 
         //Settings
@@ -108,10 +109,10 @@ namespace PrimalFury
 
                 RenderHUD();
 
-               
-                
+                var walls = vp.GetViewport();
 
-                
+                walls.ForEach(w => Console.WriteLine(w.ToString()));
+
                 // Finally, display the rendered frame on screen
                 window.Display();
             }
@@ -140,6 +141,7 @@ namespace PrimalFury
             testBuilder = new TestMapBuilder();
             testMap = new Map(testBuilder);
             testMiniMap = new TestMinimap(testMap);
+            vp = new Viewport((Vector2f)window.Size, testMap);
             testMap.Player.ViewDirection = new Vector2f(-1, 1);
         }
 

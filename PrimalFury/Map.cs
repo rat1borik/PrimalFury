@@ -63,6 +63,10 @@ namespace PrimalFury
             get { return _items; } 
         }
 
+        public BSPNode<Wall> BSPTree {
+            get { return _bspTree; }
+        }
+
     }
 
     // Structs
@@ -99,6 +103,10 @@ namespace PrimalFury
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
             }
+        }
+
+        public Vector2f ToVector() {
+            return _w1.ToVector(_w2);
         }
 
         public override string ToString() {

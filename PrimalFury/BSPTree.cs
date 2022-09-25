@@ -9,7 +9,8 @@ namespace PrimalFury {
     public class BSPNode<T> {
         
         // returns true if need to begin traversing from left, false - right
-        public delegate bool Comparer(T left, T right);
+        public delegate bool ComparerRoot(T root);
+        public delegate bool ComparerBranches(T left, T right);
 
         BSPNode<T> _left;
         BSPNode<T> _right;
@@ -40,7 +41,7 @@ namespace PrimalFury {
         public T Root {
             get { return _root; }
         }
-        public IEnumerable<T> Traverse(Comparer c) {
+        public IEnumerable<T> Traverse(ComparerBranches c) {
             if (this.IsLeaf()) {
                 yield return _root;
                 yield break;
@@ -67,8 +68,35 @@ namespace PrimalFury {
             }
 
         }
+        public IEnumerable<T> Traverse(ComparerRoot c) {
+            if (this.IsLeaf()) {
+                yield return _root;
+                yield break;
+            } else {
+                if (c.Invoke((T)(_root))) {
+                    foreach (T res in _left?.Traverse(c) ?? Enumerable.Empty<T>()) {
+                        yield return res;
+                    }
+                    yield return Root;
+                    foreach (T res in _right?.Traverse(c) ?? Enumerable.Empty<T>()) {
+                        yield return res;
+                    }
+                    yield break;
+                } else {
+                    foreach (T res in _right?.Traverse(c) ?? Enumerable.Empty<T>()) {
+                        yield return res;
+                    }
+                    yield return Root;
+                    foreach (T res in _left?.Traverse(c) ?? Enumerable.Empty<T>()) {
+                        yield return res;
+                    }
+                    yield break;
+                }
+            }
 
-        public IEnumerable<(T,int)> TraverseWithDepth(Comparer c, int depth = 0) {
+        }
+
+        public IEnumerable<(T,int)> TraverseWithDepth(ComparerBranches c, int depth = 0) {
             if (this.IsLeaf()) {
                 yield return (Root, depth);
                 yield break;
