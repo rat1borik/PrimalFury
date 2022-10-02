@@ -83,6 +83,25 @@ namespace PrimalFury
         public (Vector2f, Vector2f) GetCoords() {
             return (_w1, _w2);
         }
+
+        public Vector2f V1 {
+            get {
+                return _w1;
+            }
+            set {
+                _w1 = value;
+            }
+        }
+
+        public Vector2f V2 {
+            get {
+                return _w2;
+            }
+            set {
+                _w2 = value;
+            }
+        }
+
         public Wall(float x1, float y1, float x2, float y2) {
             _w1 = new Vector2f(x1, y1);
             _w2 = new Vector2f(x2, y2);
@@ -90,6 +109,7 @@ namespace PrimalFury
                 throw new ArgumentException("Стена не может быть точкой");
             }
         }
+
         public Wall(Vector2f wCoord1, Vector2f wCoord2) {
             _w1 = wCoord1;
             _w2 = wCoord2;
@@ -111,6 +131,12 @@ namespace PrimalFury
 
         public override string ToString() {
             return string.Format("({0},{1})->({2},{3})", _w1.X.ToString(), _w1.Y.ToString(), _w2.X.ToString(), _w2.Y.ToString());
+        }
+
+        public float Height {
+            get {
+                return 40;
+            }
         }
 
     }

@@ -101,7 +101,7 @@ namespace PrimalFury
                     window.Draw(debugInfo);
                 #endif
 
-                window.Draw(circle);
+                //window.Draw(circle);
 
 
                 // Test SideDefining
@@ -109,9 +109,11 @@ namespace PrimalFury
 
                 RenderHUD();
 
-                var walls = vp.GetViewport();
+                var vecs = vp.GetViewport();
+                Random r = new Random();
 
-                walls.ForEach(w => Console.WriteLine(w.ToString()));
+                foreach (var v in vecs) testRenderer.DrawPolyCC(v, new Color((byte)r.Next(255), (byte)r.Next(255), (byte)r.Next(255)));
+                
 
                 // Finally, display the rendered frame on screen
                 window.Display();
@@ -124,7 +126,7 @@ namespace PrimalFury
             WindowWidth = VideoMode.DesktopMode.Width;
             WindowHeight = VideoMode.DesktopMode.Height;
 
-            window = new RenderWindow(new SFML.Window.VideoMode(WindowWidth, WindowHeight), "PrimalFury", Styles.Fullscreen);
+            window = new RenderWindow(new SFML.Window.VideoMode(WindowWidth, WindowHeight), "PrimalFury", Styles.None);
 
             window.SetVerticalSyncEnabled(true);
             window.SetMouseCursorVisible(false);

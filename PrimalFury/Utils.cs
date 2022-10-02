@@ -185,6 +185,13 @@ namespace PrimalFury {
                     return Intersection.NoIntersection();
                 }
 
+                public static bool IntersectsVectors(this (Vector2f,Vector2f) line1, (Vector2f, Vector2f) line2) {
+                    return new Line(line1).GetIntersection(new Line(line2)).HasIntersection;
+                }
+                public static Intersection GetIntersectionVectors(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2) {
+                    return new Line(cut1).GetIntersection(new Line(cut2));
+                }
+
                 public static List<Vector2f> Intersections(this List<(Vector2f, Vector2f)> list, (Vector2f, Vector2f) line) {
                     var result = new List<Vector2f>();
                     foreach (var item in list) {
@@ -270,7 +277,7 @@ namespace PrimalFury {
                 }
             }
             public static class Vectors {
-                
+
                 public enum Side {
                     None,
                     Left = 1,
@@ -361,7 +368,7 @@ namespace PrimalFury {
                 //        IsLaysOnSameVector = false
                 //    };
                 //}
-                
+
                 public static float Length(this Vector2f vec) {
                     return (float)Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y);
                 }
@@ -381,17 +388,21 @@ namespace PrimalFury {
                     return v1.X * v2.X + v1.Y * v2.Y;
                 }
 
+                public static float Dot(this Vector3f v1, Vector3f v2) {
+                    return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
+                }
+
                 public static Vector2f Rotate(this Vector2f v1, float deg) {
                     deg = deg.ToRadians();
-                    return new Vector2f(v1.X * (float)Math.Cos(deg) - v1.Y*(float)Math.Sin(deg)
+                    return new Vector2f(v1.X * (float)Math.Cos(deg) - v1.Y * (float)Math.Sin(deg)
                                         , v1.X * (float)Math.Sin(deg) + v1.Y * (float)Math.Cos(deg));
                 }
 
                 // Rotates counterclockwise 
-                public static (Vector2f,Vector2f) Rotate(this (Vector2f,Vector2f) v1, float deg) {
+                public static (Vector2f, Vector2f) Rotate(this (Vector2f, Vector2f) v1, float deg) {
                     deg = deg.ToRadians();
                     var vec = v1.ToVector();
-                    return new ValueTuple<Vector2f, Vector2f>(v1.Item1,v1.Item1 + new Vector2f(vec.X * (float)Math.Cos(deg) - vec.Y * (float)Math.Sin(deg)
+                    return new ValueTuple<Vector2f, Vector2f>(v1.Item1, v1.Item1 + new Vector2f(vec.X * (float)Math.Cos(deg) - vec.Y * (float)Math.Sin(deg)
                                         , vec.X * (float)Math.Sin(deg) + vec.Y * (float)Math.Cos(deg)));
                 }
 
@@ -405,6 +416,41 @@ namespace PrimalFury {
                 public static Side CutFace(this (Vector2f, Vector2f) line, (Vector2f, Vector2f) line2) {
                     if (Math.Sign(line.ToVector().Cross(line2.Item1 - line.Item1)) != Math.Sign(line.ToVector().Cross(line2.Item2 - line.Item1))) return Side.Intersects;
                     return (Side)Math.Sign(line.ToVector().Cross(line2.Item1 - line.Item1));
+                }
+
+                public static Vector2f Mul(this Vector2f src, float[,] matrix) {
+                    if (matrix.Length != 4 && matrix.Rank !=2) {
+                        throw new ArgumentException("Wrong matrix");
+                    }
+                    return new Vector2f(src.Dot(new Vector2f(matrix[0,0], matrix[0,1])), src.Dot(new Vector2f(matrix[1, 0], matrix[1, 1])));
+                }
+
+                public static Vector3f Mul(this Vector3f src, float[,] matrix) {
+                    if (matrix.Length != 9 && matrix.Rank != 2) {
+                        throw new ArgumentException("Wrong matrix");
+                    }
+                    return new Vector3f(
+                        src.Dot(new Vector3f(matrix[0, 0], matrix[0, 1], matrix[0, 2])),
+                        src.Dot(new Vector3f(matrix[1, 0], matrix[1, 1], matrix[1, 2])),
+                        src.Dot(new Vector3f(matrix[2, 0], matrix[2, 1], matrix[2, 2])));
+                }
+
+                public static Vector2f GetNewBasis(this Vector2f src, (Vector2f, Vector2f) basis) {
+                    return src.Mul(new float[2, 2] {
+                        {basis.Item1.X, basis.Item1.Y},
+                        {basis.Item2.X, basis.Item2.Y},
+                    });
+                }
+                public static float Length2D(this Vector3f vec) {
+                    return (float)Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y);
+
+                }
+                public static float Length(this Vector3f vec) {
+                    return (float)Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y + vec.Z * vec.Z);
+                }
+
+                public static float Cos2V(this Vector2f v1, Vector2f v2) {
+                    return v1.Dot(v2) / (v1.Length() * v2.Length());
                 }
             }
         }

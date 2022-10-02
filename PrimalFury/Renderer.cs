@@ -33,12 +33,12 @@ namespace PrimalFury {
             }
         }
         public void DrawLineList(List<(Vector2f, Vector2f)> list, Vector2f position) {
-            foreach (var item in list) { 
+            foreach (var item in list) {
                 _rWnd.Draw(new Vertex[] {
                     new Vertex((Vector2f)(item.Item1 + position), Color.White),
                     new Vertex((Vector2f)(item.Item2 + position), Color.White)
                 }, PrimitiveType.Lines);
-          
+
             }
         }
         public void Draw(List<Drawable> list, Vector2f position) {
@@ -50,8 +50,30 @@ namespace PrimalFury {
         public void DrawCircle(float radius, Color fillColor, Vector2f pos) {
             _rWnd.Draw(new CircleShape(radius, (uint)Math.Round(circleDetalisationFactor * radius)) {
                 FillColor = fillColor,
-                Position = pos - new Vector2f(radius,radius),
+                Position = pos - new Vector2f(radius, radius),
             });
+        }
+
+        public void DrawPoly(List<Vector2f> vecs, Color fillColor, Vector2f position = new Vector2f()) {
+            var poly = new ConvexShape(4) {
+                Position = position,
+                FillColor = fillColor
+            };
+            for (int i = 0; i < vecs.Count; i++) poly.SetPoint((uint)i, vecs[i]);
+
+
+            _rWnd.Draw(poly);
+        }
+
+        public void DrawPolyCC(List<Vector2f> vecs, Color fillColor, Vector2f position = new Vector2f()) {
+            var poly = new ConvexShape(4) {
+                Position = position,
+                FillColor = fillColor
+            };
+            for (int i = 0; i < vecs.Count; i++) poly.SetPoint((uint)i, new Vector2f(vecs[i].X + RWndCenter.X, vecs[i].Y + RWndCenter.Y));
+
+
+            _rWnd.Draw(poly);
         }
     }
 }

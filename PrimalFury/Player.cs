@@ -41,6 +41,12 @@ namespace PrimalFury {
                 };
             }
         }
+
+        public float Height {
+            get {
+                return 50;
+            }
+        }
     }
     public struct PlayerParams {
         public float FieldOfView; // Degrees
