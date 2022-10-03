@@ -65,12 +65,12 @@ namespace PrimalFury {
             _rWnd.Draw(poly);
         }
 
-        public void DrawPolyCC(List<Vector2f> vecs, Color fillColor, Vector2f position = new Vector2f()) {
+        public void DrawPolyCC(Polygon p, Vector2f position = new Vector2f()) {
             var poly = new ConvexShape(4) {
                 Position = position,
-                FillColor = fillColor
+                FillColor = p.Color
             };
-            for (int i = 0; i < vecs.Count; i++) poly.SetPoint((uint)i, new Vector2f(vecs[i].X + RWndCenter.X, vecs[i].Y + RWndCenter.Y));
+            for (int i = 0; i < p.Points.Length; i++) poly.SetPoint((uint)i, new Vector2f(p.Points[i].X + RWndCenter.X, RWndCenter.Y - p.Points[i].Y));
 
 
             _rWnd.Draw(poly);

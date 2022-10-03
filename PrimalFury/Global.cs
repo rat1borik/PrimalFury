@@ -112,7 +112,7 @@ namespace PrimalFury
                 var vecs = vp.GetViewport();
                 Random r = new Random();
 
-                foreach (var v in vecs) testRenderer.DrawPolyCC(v, new Color((byte)r.Next(255), (byte)r.Next(255), (byte)r.Next(255)));
+                foreach (var v in vecs) testRenderer.DrawPolyCC(v);
                 
 
                 // Finally, display the rendered frame on screen

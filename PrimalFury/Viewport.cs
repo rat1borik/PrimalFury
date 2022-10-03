@@ -11,10 +11,31 @@ using PrimalFury.Utils.MathTools;
 
 namespace PrimalFury {
     public struct Polygon {
-        public Vector2f v1;
-        public Vector2f v2;
-        public Vector2f v3;
-        public Vector2f v4;
+        private Vector2f _v1;
+        private Vector2f _v2;
+        private Vector2f _v3;
+        private Vector2f _v4;
+        private Color _c;
+
+        public Polygon(List<Vector2f> vecs, Color c) {
+            if (vecs.Count != 4) throw new ArgumentException("Incorrect input");
+            _v1 = vecs[0];
+            _v2 = vecs[1];
+            _v3 = vecs[2];
+            _v4 = vecs[3];
+            _c = c;
+        }
+
+        public Vector2f[] Points {
+            get{
+                return new Vector2f[] {_v1, _v2, _v3, _v4};
+            }
+        }
+        public Color Color {
+            get {
+                return _c;
+            }
+        }
     }
 
     // This class combines all stuff need to convert map items in screen-basis polygons
@@ -30,7 +51,7 @@ namespace PrimalFury {
             _m = m;
             _player = m.Player;
         }
-        public List<List<Vector2f>> GetViewport() {
+        public List<Polygon> GetViewport() {
             var drawables = new List<Polygon>();
             var sortedWalls = new List<Wall>();
 
@@ -58,7 +79,7 @@ namespace PrimalFury {
             //var projSurfVec = (_player.ViewNormal.Item2 * projSurfDistance,
             //    (_player.ViewNormal.Item2 * projSurfDistance, _player.ViewNormal.Item1).ToVector().Rotate(90));
             var playerSurf = _player.ViewNormal.Rotate(-90);
-            var polys = new List<List<Vector2f>>();
+            var polys = new List<Polygon>();
 
             // Wall projection in mapcoords basis
 
@@ -94,13 +115,13 @@ namespace PrimalFury {
                      
                 };
 
-                polys.Add(wcoords.ConvertAll(el => {
+                polys.Add(new Polygon(wcoords.ConvertAll(el => {
                     var surf = new Vector2f(el.X, el.Y);
                     return new Vector2f(
                         projSurfDistance / surf.Length() * Math.Sign(_player.ViewDirection.Cos2V(surf)) * (float)Math.Sqrt(1 - Math.Pow(_player.ViewDirection.Cos2V(surf), 2)) * surf.Length(),
                         projSurfDistance / surf.Length() * el.Z
                     );
-                }));
+                }),w.Color));
 
             }
 

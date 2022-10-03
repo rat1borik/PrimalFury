@@ -44,7 +44,7 @@ namespace PrimalFury {
 
         public float Height {
             get {
-                return 50;
+                return 30;
             }
         }
     }
