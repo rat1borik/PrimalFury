@@ -118,7 +118,7 @@ namespace PrimalFury {
                 polys.Add(new Polygon(wcoords.ConvertAll(el => {
                     var surf = new Vector2f(el.X, el.Y);
                     return new Vector2f(
-                        projSurfDistance / surf.Length() * Math.Sign(_player.ViewDirection.Cos2V(surf)) * (float)Math.Sqrt(1 - Math.Pow(_player.ViewDirection.Cos2V(surf), 2)) * surf.Length(),
+                        projSurfDistance / surf.Length() * (float)Math.Sqrt(1 - Math.Pow(_player.ViewDirection.Cos2V(surf), 2)) * surf.Length(),
                         projSurfDistance / surf.Length() * el.Z
                     );
                 }),w.Color));

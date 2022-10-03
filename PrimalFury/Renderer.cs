@@ -24,19 +24,19 @@ namespace PrimalFury {
             if (r == null) throw new ArgumentNullException("renderWindow is null");
             _rWnd = r;
         }
-        public void DrawLineList(List<(Vector2f, Vector2f)> list) {
+        public void DrawLineList(List<MapLine> list) {
             foreach (var item in list) {
                 _rWnd.Draw(new Vertex[] {
-                    new Vertex((Vector2f)item.Item1, Color.White),
-                    new Vertex((Vector2f)item.Item2, Color.White)
+                    new Vertex((Vector2f)item.Points[0], item.Color),
+                    new Vertex((Vector2f)item.Points[1], item.Color)
                 }, PrimitiveType.Lines);
             }
         }
-        public void DrawLineList(List<(Vector2f, Vector2f)> list, Vector2f position) {
+        public void DrawLineList(List<MapLine> list, Vector2f position) {
             foreach (var item in list) {
                 _rWnd.Draw(new Vertex[] {
-                    new Vertex((Vector2f)(item.Item1 + position), Color.White),
-                    new Vertex((Vector2f)(item.Item2 + position), Color.White)
+                    new Vertex((Vector2f)(item.Points[0] + position), item.Color),
+                    new Vertex((Vector2f)(item.Points[1] + position), item.Color)
                 }, PrimitiveType.Lines);
 
             }

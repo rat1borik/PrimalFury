@@ -13,7 +13,37 @@ using PrimalFury.Utils.MathTools;
 using System.Security.Cryptography;
 
 namespace PrimalFury
-{   
+{
+    public struct MapLine {
+        private Vector2f _v1;
+        private Vector2f _v2;
+        private Color _c;
+
+        public MapLine(List<Vector2f> vecs, Color c) {
+            if (vecs.Count != 4) throw new ArgumentException("Incorrect input");
+            _v1 = vecs[0];
+            _v2 = vecs[1];
+            _c = c;
+        }
+
+        public MapLine((Vector2f, Vector2f) vecs, Color c) {
+            _v1 = vecs.Item1;
+            _v2 = vecs.Item2;
+            _c = c;
+        }
+
+        public Vector2f[] Points {
+            get {
+                return new Vector2f[] { _v1, _v2 };
+            }
+        }
+        public Color Color {
+            get {
+                return _c;
+            }
+        }
+    }
+
     // Interfaces
     public interface IMapBuilder {
         List<IMapItem> LoadItems();
@@ -28,7 +58,7 @@ namespace PrimalFury
         
     }
     public interface IMinimap {
-        List<(Vector2f, Vector2f)> GetLines();
+        List<MapLine> GetLines();
         void Draw(Renderer r, Vector2f shift);
     }
 

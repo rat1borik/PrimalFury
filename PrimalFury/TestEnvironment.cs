@@ -75,32 +75,34 @@ namespace PrimalFury {
     public class TestMinimap : IMinimap {
 
         Map _m;
-        List<(Vector2f, Vector2f)> _viewlist;
-        public List<(Vector2f, Vector2f)> GetLines() { return _viewlist; }
+        List<MapLine> _viewlist;
+        public List<MapLine> GetLines() { return _viewlist; }
         public TestMinimap(Map m) {
             _m = m;
 
-            _viewlist = new List<(Vector2f, Vector2f)>();
+            _viewlist = new List<MapLine>();
 
             foreach (IMapItem mI in _m.Items) {
 
                 var clipped = _m.MapParams.MapRect.Clip(mI.GetCoords());
-                _viewlist.Add(clipped);
+
+                if (mI is Wall) _viewlist.Add(new MapLine(clipped, ((Wall)mI).Color));
+                else _viewlist.Add(new MapLine(clipped, Color.White));
 
             }
 
             _viewlist = _viewlist.Concat(
-                _m.MapParams.MapRect.GetContainerLines()
+                _m.MapParams.MapRect.GetContainerLines().ToList().ConvertAll(x => new MapLine(x, Color.White))
                 ).ToList();
 
         }
         public void Draw(Renderer r, Vector2f shift) {
             r.DrawLineList(_viewlist, shift);
             r.DrawCircle(2, Color.Green, _m.Player.MapPosition + shift);
-            var playerView = new List<(Vector2f, Vector2f)>();
+            var playerView = new List<MapLine>();
             var vn = (_m.Player.ViewNormal.Item1, _m.Player.ViewNormal.Item1 + _m.Player.ViewNormal.ToVector() * 1000);
-            playerView.Add(_m.MapParams.MapRect.Clip(vn.Rotate(_m.Player.FieldOfView / 2)));
-            playerView.Add(_m.MapParams.MapRect.Clip(vn.Rotate(-_m.Player.FieldOfView / 2)));
+            playerView.Add(new MapLine(_m.MapParams.MapRect.Clip(vn.Rotate(_m.Player.FieldOfView / 2)), Color.White));
+            playerView.Add(new MapLine(_m.MapParams.MapRect.Clip(vn.Rotate(-_m.Player.FieldOfView / 2)), Color.White));
             r.DrawLineList(playerView, shift);
         }
     }
