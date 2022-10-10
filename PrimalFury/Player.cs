@@ -12,6 +12,7 @@ namespace PrimalFury {
     public class Player {
         
         PlayerParams _pParams;
+        Vector2f _vDir;
         public Player(PlayerParams p) {
             _pParams = p;
             MapPosition = p.StartPosition;
@@ -25,7 +26,8 @@ namespace PrimalFury {
             }
         }
         public Vector2f ViewDirection {
-            get; set;
+            get { return _vDir; }
+            set { _vDir = value; }
         }
         public (Vector2f, Vector2f) ViewNormal {
             get {
@@ -39,6 +41,17 @@ namespace PrimalFury {
                     this.ViewNormal.Rotate(this.FieldOfView / 2),
                     this.ViewNormal.Rotate(-this.FieldOfView / 2)
                 };
+            }
+        }
+        public (Vector2f, Vector2f) ViewRangeRight {
+            get {
+                return this.ViewNormal.Rotate(-this.FieldOfView / 2);
+            }
+        }
+
+        public (Vector2f, Vector2f) ViewRangeLeft {
+            get {
+                return this.ViewNormal.Rotate(this.FieldOfView / 2);
             }
         }
 

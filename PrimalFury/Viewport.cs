@@ -73,7 +73,8 @@ namespace PrimalFury {
                                     && _player.ViewRange[1].CutFace(wall.GetCoords()) != Vectors.Side.Right).ToList();
 
             // Define player-view vector
-
+            Console.WriteLine("===================");
+            sortedWalls.ForEach(w => Console.WriteLine(w.ToString()));
             var playerPos = new Vector3f(_player.MapPosition.X, _player.MapPosition.Y, _player.Height);
             var projSurfDistance = (float)(_vpRect.X / 2 * Math.Tan((_player.FieldOfView / 2).ToRadians()));
             //var projSurfVec = (_player.ViewNormal.Item2 * projSurfDistance,
@@ -92,15 +93,26 @@ namespace PrimalFury {
 
                 //Math.Pow((coords.Item1 - _player.MapPosition).Dot(_player.ViewDirection), 2) + Math.Pow((coords.Item1 - _player.MapPosition).Length(), 2);
                 var newwl = (w.V1, w.V2);
-                //projsurfacedist backfaced? clip
-                if (playerSurf.PtFace(w.V1) == Vectors.Side.Right) {
-                    var i = playerSurf.GetIntersectionVectors(w.GetCoords());
-                    newwl.Item1 = i.HasIntersection ? i.PointOfIntersection : w.V1;
+
+                //clipping
+                var i = _player.ViewRangeRight.GetIntersection(newwl, true);
+
+                if (i.HasIntersection) {
+                    if(_player.ViewRangeRight.PtFace(newwl.Item1) == Vectors.Side.Right) {
+                        newwl.Item1 = i.PointOfIntersection;
+                    } else {
+                        newwl.Item2 = i.PointOfIntersection;
+                    }
                 }
 
-                if (playerSurf.PtFace(w.V2) == Vectors.Side.Right) {
-                    var i = playerSurf.GetIntersectionVectors(w.GetCoords());
-                    newwl.Item2 = i.HasIntersection ? i.PointOfIntersection : w.V2;
+                i = _player.ViewRangeLeft.GetIntersection(newwl, true);
+
+                if (i.HasIntersection) {
+                    if (_player.ViewRangeLeft.PtFace(newwl.Item1) == Vectors.Side.Left) {
+                        newwl.Item1 = i.PointOfIntersection;
+                    } else {
+                        newwl.Item2 = i.PointOfIntersection;
+                    }
                 }
 
                 // init new wall
@@ -118,8 +130,8 @@ namespace PrimalFury {
                 polys.Add(new Polygon(wcoords.ConvertAll(el => {
                     var surf = new Vector2f(el.X, el.Y);
                     return new Vector2f(
-                        projSurfDistance / surf.Length() * (float)Math.Sqrt(1 - Math.Pow(_player.ViewDirection.Cos2V(surf), 2)) * surf.Length(),
-                        projSurfDistance / surf.Length() * el.Z
+                        projSurfDistance * 1.85f / surf.Length() * Math.Sign(_player.ViewDirection.Cross(surf)) * (float)Math.Sqrt(1 - Math.Pow(_player.ViewDirection.Cos2V(surf), 2)) * surf.Length(),
+                        projSurfDistance / (float)Math.Sqrt(Math.Pow(_player.ViewDirection.Cos2V(surf) * surf.Length(), 2) + el.Z * el.Z) * el.Z
                     );
                 }),w.Color));
 

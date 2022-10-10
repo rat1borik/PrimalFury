@@ -139,7 +139,7 @@ namespace PrimalFury
             _w2 = new Vector2f(x2, y2);
 
             var rnd = new Random((int)Math.Round(x1 * y1 * x2 * y2));
-            _c = new Color((byte)rnd.Next(255), (byte)rnd.Next(255), (byte)rnd.Next(255));
+            _c = new Color((byte)rnd.Next(255), (byte)((rnd.Next(255) + Math.Abs(x1).Greatest(0)) /2), (byte)rnd.Next(255));
 
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
@@ -151,7 +151,7 @@ namespace PrimalFury
             _w2 = wCoord2;
 
             var rnd = new Random((int)Math.Round((wCoord1+wCoord2).Length()));
-            _c = new Color((byte)rnd.Next(255), (byte)rnd.Next(255), (byte)rnd.Next(255));
+            _c = new Color((byte)rnd.Next(255), (byte)((rnd.Next(255) + Math.Abs(wCoord1.X).Greatest(0)) / 2), (byte)rnd.Next(255));
 
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
@@ -162,7 +162,7 @@ namespace PrimalFury
             _w2 = w.Item2;
 
             var rnd = new Random((int)Math.Round((w.Item1 + w.Item2).Length()));
-            _c = new Color((byte)rnd.Next(255), (byte)rnd.Next(255), (byte)rnd.Next(255));
+            _c = new Color((byte)rnd.Next(255), (byte)((rnd.Next(255) + Math.Abs(w.Item1.X).Greatest(0)) / 2), (byte)rnd.Next(255));
 
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");

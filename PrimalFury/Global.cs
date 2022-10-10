@@ -10,10 +10,8 @@ using SFML.System;
 
 using PrimalFury.Utils.MathTools;
 
-namespace PrimalFury
-{
-    class Global
-    {
+namespace PrimalFury {
+    class Global {
         // Map and builder
         static Map testMap;
         static IMinimap testMiniMap;
@@ -26,9 +24,9 @@ namespace PrimalFury
         static Settings settings;
 
         // Mouse
-        static uint MouseX = 0, MouseY = 0; 
-        static int  XDiff=0,YDiff=0;
-        static double kMouse=0.75;
+        static uint MouseX = 0, MouseY = 0;
+        static int XDiff = 0, YDiff = 0;
+        static double kMouse = 0.75;
 
         // Window
         static RenderWindow window;
@@ -38,15 +36,14 @@ namespace PrimalFury
         static string PreviousKey = "";
         static int PreviousKeyCount = 0;
         static string MouseKeyPressed = "";
-        static string debugText="";
+        static string debugText = "";
 
         //HUD Parameters
         static Sprite crosshair;
-        static uint crosshairRectX=25, crosshairRectY = 25;
-        static string fileCrosshair= "crosshair.png";
+        static uint crosshairRectX = 25, crosshairRectY = 25;
+        static string fileCrosshair = "crosshair.png";
 
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
             PrepareWindow();
 
             settings = new TestSettingsLoader().Load();
@@ -78,16 +75,15 @@ namespace PrimalFury
 
             // Start the game loop
             Mouse.SetPosition(new Vector2i((int)WindowWidth / 2, (int)WindowHeight / 2), window);
-            while (window.IsOpen)
-            {
+            while (window.IsOpen) {
                 //debug
-                debugText= String.Format("X: {0}, Y: {1}\nKey pressed: {2} : {3} times\nMouse key pressed: {4}", MouseX, MouseY, PreviousKey, PreviousKeyCount, MouseKeyPressed);
+                debugText = String.Format("X: {0}, Y: {1}\nKey pressed: {2} : {3} times\nMouse key pressed: {4}", MouseX, MouseY, PreviousKey, PreviousKeyCount, MouseKeyPressed);
 
 
                 debugInfo.DisplayedString = debugText;
-                debugInfo.Position = new Vector2f(WindowWidth-(debugText.Split('\n').OrderByDescending(s=>s.Length).ToArray()[0].Length*(debugInfo.CharacterSize/2)) - 20, 0);
+                debugInfo.Position = new Vector2f(WindowWidth - (debugText.Split('\n').OrderByDescending(s => s.Length).ToArray()[0].Length * (debugInfo.CharacterSize / 2)) - 20, 0);
                 //circle.Position= new Vector2f(MouseX,MouseY);
-                circle.Position = new Vector2f(circle.Position.X+ (int)Math.Round(kMouse * XDiff), circle.Position.Y + (int)Math.Round(kMouse*YDiff));
+                circle.Position = new Vector2f(circle.Position.X + (int)Math.Round(kMouse * XDiff), circle.Position.Y + (int)Math.Round(kMouse * YDiff));
 
 
                 window.Clear();
@@ -97,9 +93,9 @@ namespace PrimalFury
 
 
                 // Draw
-                #if DEBUG
-                    window.Draw(debugInfo);
-                #endif
+#if DEBUG
+                window.Draw(debugInfo);
+#endif
 
                 //window.Draw(circle);
 
@@ -107,13 +103,14 @@ namespace PrimalFury
                 // Test SideDefining
                 // Utils.MathTools.Vectors.Side a =  (new Vector2f(1, 0), new Vector2f(4, 3)).PtFace(new Vector2f(1,1));
 
-                RenderHUD();
+                
 
                 var vecs = vp.GetViewport();
                 Random r = new Random();
 
                 foreach (var v in vecs) testRenderer.DrawPolyCC(v);
-                
+
+                RenderHUD();
 
                 // Finally, display the rendered frame on screen
                 window.Display();
@@ -163,38 +160,40 @@ namespace PrimalFury
             }
         }
 
-        private static void Window_Closed(object sender, EventArgs e)
-        {
+        private static void Window_Closed(object sender, EventArgs e) {
             var window = (Window)sender;
             window.Close();
         }
 
-        private static void Window_KeyPressed(object sender, SFML.Window.KeyEventArgs e)
-        {
+        private static void Window_KeyPressed(object sender, SFML.Window.KeyEventArgs e) {
             var window = (Window)sender;
-            if(PreviousKey!= e.Code.ToString()) {
+            if (PreviousKey != e.Code.ToString()) {
                 PreviousKeyCount = 0;
             }
             PreviousKey = e.Code.ToString();
             PreviousKeyCount += 1;
             if (e.Code == Keyboard.Key.Escape) {
                 window.Close();
-            } if (e.Code == Keyboard.Key.A) {
-                testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(-1);
-            } if (e.Code == Keyboard.Key.D) {
-                testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(1);
-            } if (e.Code == Keyboard.Key.W) {
-                testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection*5;
-            } if (e.Code == Keyboard.Key.S) {
-                testMap.Player.MapPosition = testMap.Player.MapPosition - testMap.Player.ViewDirection*5;
+            }
+            if (e.Code == Keyboard.Key.A) {
+                testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(-2);
+            }
+            if (e.Code == Keyboard.Key.D) {
+                testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(2);
+            }
+            if (e.Code == Keyboard.Key.W) {
+                testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection * 5;
+            }
+            if (e.Code == Keyboard.Key.S) {
+                testMap.Player.MapPosition = testMap.Player.MapPosition - testMap.Player.ViewDirection * 5;
             }
         }
         private static void RenderHUD() {
             var minimap = testMiniMap.GetLines();
-            testMiniMap.Draw(testRenderer,settings.MinimapPosition);
+            testMiniMap.Draw(testRenderer, settings.MinimapPosition);
 
             //testRenderer.DrawLineList(minimap, settings.MinimapPosition);
-            
+
             // window.Draw(new Vertex[] { new Vertex(new Vector2f(100, 100), Color.Red) , new Vertex(new Vector2f(200, 200), Color.Red) , new Vertex(new Vector2f(400, 500), Color.Red) }, PrimitiveType.LinesStrip);
             //window.Draw(crosshair);
         }

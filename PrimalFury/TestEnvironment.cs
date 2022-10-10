@@ -103,6 +103,8 @@ namespace PrimalFury {
             var vn = (_m.Player.ViewNormal.Item1, _m.Player.ViewNormal.Item1 + _m.Player.ViewNormal.ToVector() * 1000);
             playerView.Add(new MapLine(_m.MapParams.MapRect.Clip(vn.Rotate(_m.Player.FieldOfView / 2)), Color.White));
             playerView.Add(new MapLine(_m.MapParams.MapRect.Clip(vn.Rotate(-_m.Player.FieldOfView / 2)), Color.White));
+            playerView.Add(new MapLine(_m.MapParams.MapRect.Clip(vn.Rotate(-90)), Color.Red));
+            playerView.Add(new MapLine(_m.MapParams.MapRect.Clip(vn.Rotate(90)), Color.Red));
             r.DrawLineList(playerView, shift);
         }
     }

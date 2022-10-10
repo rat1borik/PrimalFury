@@ -169,14 +169,14 @@ namespace PrimalFury {
                     }
                 }
 
-                public static bool Intersects(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2) {
+                public static bool Intersects(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2, bool is1vec2cut = false) {
                     Intersection i = new Line(cut1).GetIntersection(new Line(cut2));
-                    return i.HasIntersection && cut1.Contains(i.PointOfIntersection) && cut2.Contains(i.PointOfIntersection);
+                    return i.HasIntersection && (cut1.Contains(i.PointOfIntersection)|| is1vec2cut) && cut2.Contains(i.PointOfIntersection);
                 }
-                public static Intersection GetIntersection(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2) {
+                public static Intersection GetIntersection(this (Vector2f, Vector2f) cut1, (Vector2f, Vector2f) cut2, bool is1vec2cut = false) {
                     Intersection i = new Line(cut1).GetIntersection(new Line(cut2));
                     if (i.HasIntersection) {
-                        var p1 = cut1.RectContains(i.PointOfIntersection);
+                        var p1 = is1vec2cut ? true : cut1.RectContains(i.PointOfIntersection);
 
                         var p2 = cut2.RectContains(i.PointOfIntersection);
                         if (p1 && p2)
