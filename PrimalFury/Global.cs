@@ -158,6 +158,8 @@ namespace PrimalFury {
             else {
                 XDiff = 0; YDiff = 0;
             }
+
+            testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(XDiff * 0.02f);
         }
 
         private static void Window_Closed(object sender, EventArgs e) {
@@ -172,22 +174,25 @@ namespace PrimalFury {
             }
             PreviousKey = e.Code.ToString();
             PreviousKeyCount += 1;
-            if (e.Code == Keyboard.Key.Escape) {
-                window.Close();
-            }
-            if (e.Code == Keyboard.Key.A) {
-                testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(-2);
-            }
-            if (e.Code == Keyboard.Key.D) {
-                testMap.Player.ViewDirection = testMap.Player.ViewDirection.Rotate(2);
-            }
-            if (e.Code == Keyboard.Key.W) {
-                testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection * 5;
-            }
-            if (e.Code == Keyboard.Key.S) {
-                testMap.Player.MapPosition = testMap.Player.MapPosition - testMap.Player.ViewDirection * 5;
-            }
+            switch (e.Code) {
+                case Keyboard.Key.Escape:
+                    window.Close();
+                    break;
+                case Keyboard.Key.A:
+                    testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection.Rotate(-90) * testMap.Player.Velocity;
+                    break;
+                case Keyboard.Key.D:
+                    testMap.Player.MapPosition = testMap.Player.MapPosition - testMap.Player.ViewDirection.Rotate(-90) * testMap.Player.Velocity;
+                    break;
+                case Keyboard.Key.W:
+                    testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection * testMap.Player.Velocity;
+                    break;
+                case Keyboard.Key.S:
+                    testMap.Player.MapPosition = testMap.Player.MapPosition - testMap.Player.ViewDirection * testMap.Player.Velocity;
+                    break;
+            } 
         }
+
         private static void RenderHUD() {
             var minimap = testMiniMap.GetLines();
             testMiniMap.Draw(testRenderer, settings.MinimapPosition);

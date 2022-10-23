@@ -60,6 +60,11 @@ namespace PrimalFury {
                 return 30;
             }
         }
+        public float Velocity {
+            get {
+                return 3;
+            }
+        }
     }
     public struct PlayerParams {
         public float FieldOfView; // Degrees
