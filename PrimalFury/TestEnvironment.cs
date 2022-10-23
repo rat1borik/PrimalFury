@@ -9,6 +9,7 @@ using SFML.Graphics;
 using SFML.System;
 
 using PrimalFury.Utils.MathTools;
+using System.Collections;
 
 namespace PrimalFury {
     //Test shit
@@ -32,11 +33,12 @@ namespace PrimalFury {
             //new Wall(100, 3, 50, 40),
             //new Wall(100, 3, 51.5f, 51.5f),
             //new Wall(3, 3, 100, 100)
-            _items.AddRange(new Vector2f(100, 100).GetContainerLines(new Vector2f(100, 100)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            _items.AddRange(new Vector2f(100, 155).GetContainerLines(new Vector2f(100, 100)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
             _items.AddRange(new Vector2f(30, 30).GetContainerLines(new Vector2f(300, 150)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
             _items.AddRange(new Vector2f(30, 30).GetContainerLines(new Vector2f(250, 200)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
             _items.AddRange(new Vector2f(80, 100).GetContainerLines(new Vector2f(10, 10)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
-            _items.AddRange(new Vector2f(20, 30).GetContainerLines(new Vector2f(400, 200)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            _items.AddRange(new Vector2f(20, 30).GetContainerLines(new Vector2f(400, 250)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
+            _items.Add(new Wall(400, 100, 200, 150, Color.Red));
         }
 
         public List<IMapItem> LoadItems() {
@@ -53,8 +55,40 @@ namespace PrimalFury {
             var left = new List<Wall>();
             var right = new List<Wall>();
 
-            var divider = items[0]; // TODO: Smart defining of divider
+            var divrate = new Dictionary<Wall, Dictionary<Wall, Intersection>>();
 
+            foreach (var div in items) {
+                var acc = new Dictionary<Wall, Intersection>();
+                foreach (var inters in items.Where(itm => itm != div)) {
+                    var it = div.GetCoords().GetIntersection(inters.GetCoords(), true);
+                    if (it.HasIntersection 
+                        && it.PointOfIntersection != inters.GetCoords().Item1
+                        && it.PointOfIntersection != inters.GetCoords().Item2
+                        && it.PointOfIntersection != div.GetCoords().Item2
+                        && it.PointOfIntersection != div.GetCoords().Item1
+                        ) acc.Add(inters, it);
+                }
+                divrate.Add(div, acc);
+            }
+
+            var sortedrate = from entry in divrate 
+                             orderby entry.Value.Count ascending 
+                             select entry;
+
+            var divider = sortedrate.ToList()[0].Key;
+
+            var interfixes = sortedrate.ToList()[0].Value;
+
+            // divide walls
+
+            foreach (var inters in interfixes) {
+
+                Console.WriteLine("fixed");
+
+                items.Add(new Wall(inters.Value.Get(), items.Find(item => item == inters.Key).V2, items.Find(item => item == inters.Key).Color));
+
+                items.Find(item => item == inters.Key).V2 = inters.Value.Get();
+            }
 
             foreach (var item in items.Where(item => item != divider)) {
                 if (divider.GetCoords().PtFace(item.GetCoords().Item1) == Vectors.Side.Left) left.Add(item);

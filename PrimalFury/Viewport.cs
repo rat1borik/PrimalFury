@@ -73,8 +73,8 @@ namespace PrimalFury {
                                     && _player.ViewRange[1].CutFace(wall.GetCoords()) != Vectors.Side.Right).ToList();
 
             // Define player-view vector
-            Console.WriteLine("===================");
-            sortedWalls.ForEach(w => Console.WriteLine(w.ToString()));
+            //Console.WriteLine("===================");
+            //sortedWalls.ForEach(w => Console.WriteLine(w.ToString()));
             var playerPos = new Vector3f(_player.MapPosition.X, _player.MapPosition.Y, _player.Height);
             var projSurfDistance = (float)(_vpRect.X / 2 * Math.Tan((_player.FieldOfView / 2).ToRadians()));
             //var projSurfVec = (_player.ViewNormal.Item2 * projSurfDistance,

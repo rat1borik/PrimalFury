@@ -121,6 +121,7 @@ namespace PrimalFury
                 return _w1;
             }
             set {
+                if (value == _w2) throw new ArgumentException("Стена не может быть точкой");
                 _w1 = value;
             }
         }
@@ -130,39 +131,46 @@ namespace PrimalFury
                 return _w2;
             }
             set {
+                if (value == _w1) throw new ArgumentException("Стена не может быть точкой");
                 _w2 = value;
             }
         }
 
-        public Wall(float x1, float y1, float x2, float y2) {
+        public Wall(float x1, float y1, float x2, float y2, Color? clr = null) {
             _w1 = new Vector2f(x1, y1);
             _w2 = new Vector2f(x2, y2);
 
-            var rnd = new Random((int)Math.Round(x1 * y1 * x2 * y2));
-            _c = new Color((byte)rnd.Next(255), (byte)((rnd.Next(255) + Math.Abs(x1).Greatest(0)) /2), (byte)rnd.Next(255));
+            if (clr == null) {
+                var rnd = new Random((int)Math.Round(x1 * y1 * x2 * y2));
+                _c = new Color((byte)rnd.Next(255), (byte)((rnd.Next(255) + Math.Abs(x1).Greatest(0)) /2), (byte)rnd.Next(255));
+            } else _c = clr.Value;
 
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
             }
         }
 
-        public Wall(Vector2f wCoord1, Vector2f wCoord2) {
+        public Wall(Vector2f wCoord1, Vector2f wCoord2, Color? clr = null) {
             _w1 = wCoord1;
             _w2 = wCoord2;
 
-            var rnd = new Random((int)Math.Round((wCoord1+wCoord2).Length()));
+            if (clr == null) {
+                var rnd = new Random((int)Math.Round((wCoord1+wCoord2).Length()));
             _c = new Color((byte)rnd.Next(255), (byte)((rnd.Next(255) + Math.Abs(wCoord1.X).Greatest(0)) / 2), (byte)rnd.Next(255));
+            } else _c = clr.Value;
 
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
             }
         }
-        public Wall((Vector2f , Vector2f ) w) {
+        public Wall((Vector2f , Vector2f ) w, Color? clr = null) {
             _w1 = w.Item1;
             _w2 = w.Item2;
 
-            var rnd = new Random((int)Math.Round((w.Item1 + w.Item2).Length()));
-            _c = new Color((byte)rnd.Next(255), (byte)((rnd.Next(255) + Math.Abs(w.Item1.X).Greatest(0)) / 2), (byte)rnd.Next(255));
+            if (clr == null) {
+                var rnd = new Random((int)Math.Round((w.Item1 + w.Item2).Length()));
+                _c = new Color((byte)rnd.Next(255), (byte)((rnd.Next(255) + Math.Abs(w.Item1.X).Greatest(0)) / 2), (byte)rnd.Next(255));
+            } else _c = clr.Value;
 
             if (_w1 == _w2) {
                 throw new ArgumentException("Стена не может быть точкой");
