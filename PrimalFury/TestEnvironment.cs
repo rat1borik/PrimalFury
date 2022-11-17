@@ -39,6 +39,7 @@ namespace PrimalFury {
             _items.AddRange(new Vector2f(80, 100).GetContainerLines(new Vector2f(10, 10)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
             _items.AddRange(new Vector2f(20, 30).GetContainerLines(new Vector2f(400, 250)).ConvertAll(new Converter<(Vector2f, Vector2f), IMapItem>((v) => new Wall(v))));
             _items.Add(new Wall(400, 100, 200, 150, Color.Red));
+            //_items.Add(new Wall(200, 100, 200, 255, Color.Cyan));
         }
 
         public List<IMapItem> LoadItems() {

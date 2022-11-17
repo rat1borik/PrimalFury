@@ -52,6 +52,7 @@ namespace PrimalFury {
             _player = m.Player;
         }
         public List<Polygon> GetViewport() {
+
             var drawables = new List<Polygon>();
             var sortedWalls = new List<Wall>();
 
@@ -114,7 +115,7 @@ namespace PrimalFury {
                         newwl.Item2 = i.PointOfIntersection;
                     }
                 }
-
+                //Console.WriteLine(newwl.ToString());
                 // init new wall
                 var wl = new Wall(newwl);
 

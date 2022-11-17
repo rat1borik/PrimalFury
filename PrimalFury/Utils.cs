@@ -90,8 +90,8 @@ namespace PrimalFury {
                         return Intersection.NoIntersection();
                     }
 
-                    return Intersection.NewIntersection(new Vector2f((-this.C * l.B + this.B * l.C) / denom,
-                                                           (-this.A * l.C + l.A * this.C) / denom));
+                    return Intersection.NewIntersection(new Vector2f((float)Math.Round((-this.C * l.B + this.B * l.C) / denom, 4),
+                                                           (float)Math.Round((-this.A * l.C + l.A * this.C) / denom, 4)));
                 }
 
                 public bool Contains((Vector2f, Vector2f) cut) {
@@ -100,7 +100,7 @@ namespace PrimalFury {
 
                 public bool Contains(Vector2f pt) {
                     
-                    return Math.Round(this.A * pt.X + this.B * pt.Y + this.C) == 0;
+                    return Math.Round(this.A * pt.X + this.B * pt.Y + this.C, 4) == 0;
                 }
 
                 public bool Intersects(Line l) {

@@ -96,30 +96,24 @@ namespace PrimalFury {
                 }
 
                 window.Clear();
-                //window.Clear(Color.White);
+
                 // Process events
                 window.DispatchEvents();
 
+                // Calculate screen-based polys
+                var vecs = vp.GetViewport();
+                Random r = new Random();
+
+                // Draw polys
+                foreach (var v in vecs) 
+                    testRenderer.DrawPolyCC(v);
+
+                RenderHUD();
 
                 // Draw
 #if DEBUG
                 window.Draw(debugInfo);
 #endif
-
-                //window.Draw(circle);
-
-
-                // Test SideDefining
-                // Utils.MathTools.Vectors.Side a =  (new Vector2f(1, 0), new Vector2f(4, 3)).PtFace(new Vector2f(1,1));
-
-                
-
-                var vecs = vp.GetViewport();
-                Random r = new Random();
-
-                foreach (var v in vecs) testRenderer.DrawPolyCC(v);
-
-                RenderHUD();
 
                 // Finally, display the rendered frame on screen
                 window.Display();
