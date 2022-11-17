@@ -12,6 +12,9 @@ using PrimalFury.Utils.MathTools;
 
 namespace PrimalFury {
     class Global {
+        // Some Consts
+        const int POLL_RATE = 16;
+
         // Map and builder
         static Map testMap;
         static IMinimap testMiniMap;
@@ -19,7 +22,7 @@ namespace PrimalFury {
         static Viewport vp;
         static Renderer testRenderer;
 
-        //Settings
+        // Settings
 
         static Settings settings;
 
@@ -75,9 +78,11 @@ namespace PrimalFury {
 
             // Start the game loop
             Mouse.SetPosition(new Vector2i((int)WindowWidth / 2, (int)WindowHeight / 2), window);
+            Clock clock = new Clock();
+
             while (window.IsOpen) {
                 //debug
-                debugText = String.Format("X: {0}, Y: {1}\nKey pressed: {2} : {3} times\nMouse key pressed: {4}", MouseX, MouseY, PreviousKey, PreviousKeyCount, MouseKeyPressed);
+                debugText = String.Format("X: {0}, Y: {1}\nKey pressed: {2} : {3} times\nMouse key pressed: {4}\nVelocityX: {5}\nVelocityY: {6}", MouseX, MouseY, PreviousKey, PreviousKeyCount, MouseKeyPressed, testMap.Player.VelocityX, testMap.Player.VelocityY);
 
 
                 debugInfo.DisplayedString = debugText;
@@ -85,6 +90,10 @@ namespace PrimalFury {
                 //circle.Position= new Vector2f(MouseX,MouseY);
                 circle.Position = new Vector2f(circle.Position.X + (int)Math.Round(kMouse * XDiff), circle.Position.Y + (int)Math.Round(kMouse * YDiff));
 
+                if (window.HasFocus() && clock.ElapsedTime >= Time.FromMilliseconds(POLL_RATE)) {
+                    clock.Restart();
+                    ProvideInput();
+                }
 
                 window.Clear();
                 //window.Clear(Color.White);
@@ -118,17 +127,36 @@ namespace PrimalFury {
 
 
         }
-
+        public static void ProvideInput() {
+            if (Keyboard.IsKeyPressed(Keyboard.Key.A) || Keyboard.IsKeyPressed(Keyboard.Key.D) ) {
+                if (Keyboard.IsKeyPressed(Keyboard.Key.A))
+                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit ? testMap.Player.VelocityX : testMap.Player.VelocityX + testMap.Player.AccelerationRate;
+                if (Keyboard.IsKeyPressed(Keyboard.Key.D))
+                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit ? testMap.Player.VelocityX : testMap.Player.VelocityX - testMap.Player.AccelerationRate;
+            } else {
+                testMap.Player.VelocityX = testMap.Player.VelocityX == 0 ? 0 : (float)Math.Round(Math.Sign(testMap.Player.VelocityX) * (Math.Abs(testMap.Player.VelocityX) - testMap.Player.AccelerationRate), 4);
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.W) || Keyboard.IsKeyPressed(Keyboard.Key.S)) {
+                if (Keyboard.IsKeyPressed(Keyboard.Key.W))
+                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) >= testMap.Player.VelocityLimit ? testMap.Player.VelocityY : testMap.Player.VelocityY + testMap.Player.AccelerationRate;
+                if (Keyboard.IsKeyPressed(Keyboard.Key.S))
+                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) >= testMap.Player.VelocityLimit ? testMap.Player.VelocityY : testMap.Player.VelocityY - testMap.Player.AccelerationRate;
+            } else {
+                testMap.Player.VelocityY = testMap.Player.VelocityY == 0 ? 0 : (float)Math.Round(Math.Sign(testMap.Player.VelocityY) * (Math.Abs(testMap.Player.VelocityY) - testMap.Player.AccelerationRate), 4);
+            }
+            testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection * testMap.Player.VelocityY;
+            testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection.Rotate(-90) * testMap.Player.VelocityX;
+        }
         private static void PrepareWindow() {
             WindowWidth = VideoMode.DesktopMode.Width;
             WindowHeight = VideoMode.DesktopMode.Height;
-
+            
             window = new RenderWindow(new SFML.Window.VideoMode(WindowWidth, WindowHeight), "PrimalFury", Styles.None);
 
-            window.SetVerticalSyncEnabled(true);
+            window.SetVerticalSyncEnabled(false);
             window.SetMouseCursorVisible(false);
-
             window.KeyPressed += Window_KeyPressed;
+
             window.Closed += Window_Closed;
             window.MouseMoved += Window_MouseMoved;
             window.MouseButtonPressed += Window_MouseButtonPressed;
@@ -174,23 +202,9 @@ namespace PrimalFury {
             }
             PreviousKey = e.Code.ToString();
             PreviousKeyCount += 1;
-            switch (e.Code) {
-                case Keyboard.Key.Escape:
-                    window.Close();
-                    break;
-                case Keyboard.Key.A:
-                    testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection.Rotate(-90) * testMap.Player.Velocity;
-                    break;
-                case Keyboard.Key.D:
-                    testMap.Player.MapPosition = testMap.Player.MapPosition - testMap.Player.ViewDirection.Rotate(-90) * testMap.Player.Velocity;
-                    break;
-                case Keyboard.Key.W:
-                    testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection * testMap.Player.Velocity;
-                    break;
-                case Keyboard.Key.S:
-                    testMap.Player.MapPosition = testMap.Player.MapPosition - testMap.Player.ViewDirection * testMap.Player.Velocity;
-                    break;
-            } 
+            if (e.Code == Keyboard.Key.Escape) {
+                window.Close();
+            }
         }
 
         private static void RenderHUD() {

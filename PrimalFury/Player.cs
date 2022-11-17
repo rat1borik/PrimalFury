@@ -60,9 +60,18 @@ namespace PrimalFury {
                 return 30;
             }
         }
-        public float Velocity {
+        public float VelocityX { get; set; }
+        public float VelocityY { get; set; }
+
+        public float VelocityLimit {
             get {
-                return 3;
+                return 2;
+            }
+        }
+
+        public float AccelerationRate {
+            get {
+                return 0.05f;
             }
         }
     }
