@@ -77,7 +77,7 @@ namespace PrimalFury {
             //Console.WriteLine("===================");
             //sortedWalls.ForEach(w => Console.WriteLine(w.ToString()));
             var playerPos = new Vector3f(_player.MapPosition.X, _player.MapPosition.Y, _player.Height);
-            var projSurfDistance = (float)(_vpRect.X / 2 * Math.Tan((_player.FieldOfView / 2).ToRadians()));
+            var projSurfDistance = (float)(_vpRect.X / 2 / Math.Tan((_player.FieldOfView / 2).ToRadians()));
             //var projSurfVec = (_player.ViewNormal.Item2 * projSurfDistance,
             //    (_player.ViewNormal.Item2 * projSurfDistance, _player.ViewNormal.Item1).ToVector().Rotate(90));
             var playerSurf = _player.ViewNormal.Rotate(-90);
@@ -93,48 +93,61 @@ namespace PrimalFury {
                 //var crd2 = coords.Item2.X
 
                 //Math.Pow((coords.Item1 - _player.MapPosition).Dot(_player.ViewDirection), 2) + Math.Pow((coords.Item1 - _player.MapPosition).Length(), 2);
+                var newBasis = (_player.ViewDirection.Rotate(-90), _player.ViewDirection);
                 var newwl = (w.V1, w.V2);
 
                 //clipping
-                var i = _player.ViewRangeRight.GetIntersection(newwl, true);
+                //var i = _player.ViewRangeRight.GetIntersection(newwl, true);
 
-                if (i.HasIntersection) {
-                    if(_player.ViewRangeRight.PtFace(newwl.Item1) == Vectors.Side.Right) {
-                        newwl.Item1 = i.PointOfIntersection;
-                    } else {
-                        newwl.Item2 = i.PointOfIntersection;
-                    }
-                }
+                //if (i.HasIntersection) {
+                //    if(_player.ViewRangeRight.PtFace(newwl.Item1) == Vectors.Side.Right) {
+                //        newwl.Item1 = i.PointOfIntersection;
+                //    } else {
+                //        newwl.Item2 = i.PointOfIntersection;
+                //    }
+                //}
 
-                i = _player.ViewRangeLeft.GetIntersection(newwl, true);
+                //i = _player.ViewRangeLeft.GetIntersection(newwl, true);
 
-                if (i.HasIntersection) {
-                    if (_player.ViewRangeLeft.PtFace(newwl.Item1) == Vectors.Side.Left) {
-                        newwl.Item1 = i.PointOfIntersection;
-                    } else {
-                        newwl.Item2 = i.PointOfIntersection;
-                    }
-                }
+                //if (i.HasIntersection) {
+                //    if (_player.ViewRangeLeft.PtFace(newwl.Item1) == Vectors.Side.Left) {
+                //        newwl.Item1 = i.PointOfIntersection;
+                //    } else {
+                //        newwl.Item2 = i.PointOfIntersection;
+                //    }
+                //}
                 //Console.WriteLine(newwl.ToString());
                 // init new wall
                 var wl = new Wall(newwl);
 
-                // Calc wall coords in player-space basis with z-coords
+                
+
+                
+
+
                 var wcoords = new List<Vector3f>{
-                     new Vector3f(wl.V1.X, wl.V1.Y, 0) - playerPos,
-                     new Vector3f(wl.V1.X, wl.V1.Y, wl.Height) - playerPos,
-                     new Vector3f(wl.V2.X, wl.V2.Y, wl.Height) - playerPos,
-                     new Vector3f(wl.V2.X, wl.V2.Y, 0) - playerPos,                     
+                     (new Vector3f(wl.V1.X, wl.V1.Y, 0) - playerPos).GetVecByBasis(newBasis),
+                     (new Vector3f(wl.V1.X, wl.V1.Y, wl.Height) - playerPos).GetVecByBasis(newBasis),
+                     (new Vector3f(wl.V2.X, wl.V2.Y, wl.Height) - playerPos).GetVecByBasis(newBasis),
+                     (new Vector3f(wl.V2.X, wl.V2.Y, 0) - playerPos).GetVecByBasis(newBasis),                     
                      
                 };
 
+                //polys.Add(new Polygon(wcoords.ConvertAll(el => {
+                //    var surf = new Vector2f(el.X, el.Y);
+                //    return new Vector2f(
+                //        projSurfDistance / surf.Length() * Math.Sign(_player.ViewDirection.Cross(surf)) * (float)Math.Sqrt(1 - Math.Pow(_player.ViewDirection.Cos2V(surf), 2)) * surf.Length(),
+                //        projSurfDistance / (float)Math.Sqrt(Math.Pow(_player.ViewDirection.Cos2V(surf) * surf.Length(), 2) + el.Z * el.Z) * el.Z
+                //    );
+                //}),w.Color));
+
                 polys.Add(new Polygon(wcoords.ConvertAll(el => {
-                    var surf = new Vector2f(el.X, el.Y);
                     return new Vector2f(
-                        projSurfDistance * 1.85f / surf.Length() * Math.Sign(_player.ViewDirection.Cross(surf)) * (float)Math.Sqrt(1 - Math.Pow(_player.ViewDirection.Cos2V(surf), 2)) * surf.Length(),
-                        projSurfDistance / (float)Math.Sqrt(Math.Pow(_player.ViewDirection.Cos2V(surf) * surf.Length(), 2) + el.Z * el.Z) * el.Z
+                        el.Y == 0 ? Math.Sign( -el.X) * _vpRect.X / 2 : - el.X * projSurfDistance / Math.Abs(el.Y),
+                        el.Y <= 0 ? Math.Sign(el.Z) * (_vpRect.Y / 2 + _vpRect.Y / 2 * Math.Abs(el.Y)) : el.Z * projSurfDistance / el.Y
                     );
-                }),w.Color));
+                }), w.Color));
+
 
             }
 

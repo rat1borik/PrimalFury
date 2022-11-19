@@ -87,8 +87,8 @@ namespace PrimalFury {
 
                 debugInfo.DisplayedString = debugText;
                 debugInfo.Position = new Vector2f(WindowWidth - (debugText.Split('\n').OrderByDescending(s => s.Length).ToArray()[0].Length * (debugInfo.CharacterSize / 2)) - 20, 0);
-                //circle.Position= new Vector2f(MouseX,MouseY);
-                circle.Position = new Vector2f(circle.Position.X + (int)Math.Round(kMouse * XDiff), circle.Position.Y + (int)Math.Round(kMouse * YDiff));
+                circle.Position= new Vector2f(1400,600);
+                //circle.Position = new Vector2f(circle.Position.X + (int)Math.Round(kMouse * XDiff), circle.Position.Y + (int)Math.Round(kMouse * YDiff));
 
                 if (window.HasFocus() && clock.ElapsedTime >= Time.FromMilliseconds(POLL_RATE)) {
                     clock.Restart();
@@ -113,6 +113,7 @@ namespace PrimalFury {
                 // Draw
 #if DEBUG
                 window.Draw(debugInfo);
+                //window.Draw(circle);
 #endif
 
                 // Finally, display the rendered frame on screen
@@ -163,7 +164,7 @@ namespace PrimalFury {
             testMap = new Map(testBuilder);
             testMiniMap = new TestMinimap(testMap);
             vp = new Viewport((Vector2f)window.Size, testMap);
-            testMap.Player.ViewDirection = new Vector2f(-1, 1);
+            testMap.Player.ViewDirection = new Vector2f(0, 1);
         }
 
         private static void Window_MouseButtonPressed(object sender, MouseButtonEventArgs e) {

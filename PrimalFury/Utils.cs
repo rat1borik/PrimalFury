@@ -435,12 +435,21 @@ namespace PrimalFury {
                         src.Dot(new Vector3f(matrix[2, 0], matrix[2, 1], matrix[2, 2])));
                 }
 
-                public static Vector2f GetNewBasis(this Vector2f src, (Vector2f, Vector2f) basis) {
+                public static Vector2f GetVecByBasis(this Vector2f src, (Vector2f, Vector2f) basis) {
                     return src.Mul(new float[2, 2] {
                         {basis.Item1.X, basis.Item1.Y},
                         {basis.Item2.X, basis.Item2.Y},
                     });
                 }
+
+                public static Vector3f GetVecByBasis(this Vector3f src, (Vector2f, Vector2f) basis) {
+                    return src.Mul(new float[3, 3] {
+                        {basis.Item1.X, basis.Item1.Y, 0},
+                        {basis.Item2.X, basis.Item2.Y ,0},
+                        {0, 0, 1}
+                    });
+                }
+
                 public static float Length2D(this Vector3f vec) {
                     return (float)Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y);
 
