@@ -71,7 +71,8 @@ namespace PrimalFury {
 
         public float AccelerationRate {
             get {
-                return 0.05f;
+                return 2f;
+                //return 0.05f;
             }
         }
     }

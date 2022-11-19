@@ -124,17 +124,17 @@ namespace PrimalFury {
         public static void ProvideInput() {
             if (Keyboard.IsKeyPressed(Keyboard.Key.A) || Keyboard.IsKeyPressed(Keyboard.Key.D) ) {
                 if (Keyboard.IsKeyPressed(Keyboard.Key.A))
-                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit ? testMap.Player.VelocityX : testMap.Player.VelocityX + testMap.Player.AccelerationRate;
+                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit && testMap.Player.VelocityX > 0 ? testMap.Player.VelocityX : testMap.Player.VelocityX + testMap.Player.AccelerationRate;
                 if (Keyboard.IsKeyPressed(Keyboard.Key.D))
-                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit ? testMap.Player.VelocityX : testMap.Player.VelocityX - testMap.Player.AccelerationRate;
+                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit && testMap.Player.VelocityX < 0 ? testMap.Player.VelocityX : testMap.Player.VelocityX - testMap.Player.AccelerationRate;
             } else {
                 testMap.Player.VelocityX = testMap.Player.VelocityX == 0 ? 0 : (float)Math.Round(Math.Sign(testMap.Player.VelocityX) * (Math.Abs(testMap.Player.VelocityX) - testMap.Player.AccelerationRate), 4);
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.W) || Keyboard.IsKeyPressed(Keyboard.Key.S)) {
                 if (Keyboard.IsKeyPressed(Keyboard.Key.W))
-                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) >= testMap.Player.VelocityLimit ? testMap.Player.VelocityY : testMap.Player.VelocityY + testMap.Player.AccelerationRate;
+                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) >= testMap.Player.VelocityLimit && testMap.Player.VelocityY > 0 ? testMap.Player.VelocityY : testMap.Player.VelocityY + testMap.Player.AccelerationRate;
                 if (Keyboard.IsKeyPressed(Keyboard.Key.S))
-                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) >= testMap.Player.VelocityLimit ? testMap.Player.VelocityY : testMap.Player.VelocityY - testMap.Player.AccelerationRate;
+                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) >= testMap.Player.VelocityLimit && testMap.Player.VelocityY < 0 ? testMap.Player.VelocityY : testMap.Player.VelocityY - testMap.Player.AccelerationRate;
             } else {
                 testMap.Player.VelocityY = testMap.Player.VelocityY == 0 ? 0 : (float)Math.Round(Math.Sign(testMap.Player.VelocityY) * (Math.Abs(testMap.Player.VelocityY) - testMap.Player.AccelerationRate), 4);
             }
@@ -147,7 +147,7 @@ namespace PrimalFury {
             
             window = new RenderWindow(new SFML.Window.VideoMode(WindowWidth, WindowHeight), "PrimalFury", Styles.None);
 
-            window.SetVerticalSyncEnabled(false);
+            window.SetVerticalSyncEnabled(true);
             window.SetMouseCursorVisible(false);
             window.KeyPressed += Window_KeyPressed;
 
