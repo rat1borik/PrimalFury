@@ -116,6 +116,18 @@ namespace PrimalFury {
                 //        newwl.Item2 = i.PointOfIntersection;
                 //    }
                 //}
+                var frontside = (playerSurf.Item1 + _player.ViewDirection, playerSurf.Item2 + _player.ViewDirection);
+
+                var i = frontside.GetIntersection(newwl, true);
+                    
+                if (i.HasIntersection){
+                    if(frontside.PtFace(newwl.V1) == Vectors.Side.Right && i.PointOfIntersection != newwl.V2) {
+                        newwl.V1 = i.PointOfIntersection;
+                    } else if (i.PointOfIntersection != newwl.V1) {
+                        newwl.V2 = i.PointOfIntersection;
+                    }
+                }
+
                 //Console.WriteLine(newwl.ToString());
                 // init new wall
                 var wl = new Wall(newwl);
@@ -143,8 +155,8 @@ namespace PrimalFury {
 
                 polys.Add(new Polygon(wcoords.ConvertAll(el => {
                     return new Vector2f(
-                        el.Y == 0 ? Math.Sign( -el.X) * _vpRect.X / 2 : - el.X * projSurfDistance / Math.Abs(el.Y),
-                        el.Y <= 0 ? Math.Sign(el.Z) * (_vpRect.Y / 2 + _vpRect.Y / 2 * Math.Abs(el.Y)) : el.Z * projSurfDistance / el.Y
+                        el.Y == 0 ? Math.Sign(-el.X) * _vpRect.X / 2 : - el.X * projSurfDistance / el.Y,
+                        el.Y == 0 ? Math.Sign(el.Z) * _vpRect.Y / 2 : el.Z * projSurfDistance / el.Y
                     );
                 }), w.Color));
 

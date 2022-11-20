@@ -23,7 +23,7 @@ namespace PrimalFury {
 
         public Player LoadPlayer() {
             return new Player(new PlayerParams {
-                FieldOfView = 120,
+                FieldOfView = 80,
                 StartPosition = new Vector2f(150,100)
             });
         }

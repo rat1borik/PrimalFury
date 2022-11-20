@@ -14,6 +14,7 @@ namespace PrimalFury {
     class Global {
         // Some Consts
         const int POLL_RATE = 16;
+        const int CAM_SHAKE_RATE = 600;
 
         // Map and builder
         static Map testMap;
@@ -79,21 +80,39 @@ namespace PrimalFury {
             // Start the game loop
             Mouse.SetPosition(new Vector2i((int)WindowWidth / 2, (int)WindowHeight / 2), window);
             Clock clock = new Clock();
+            Clock cameraShake = new Clock();
+            var shakeRet = false;
+            var shakeShift = new Vector2f(0, 0);
 
             while (window.IsOpen) {
                 //debug
-                debugText = String.Format("X: {0}, Y: {1}\nKey pressed: {2} : {3} times\nMouse key pressed: {4}\nVelocityX: {5}\nVelocityY: {6}", MouseX, MouseY, PreviousKey, PreviousKeyCount, MouseKeyPressed, testMap.Player.VelocityX, testMap.Player.VelocityY);
+                debugText = String.Format("X: {0}, Y: {1}\nKey pressed: {2} : {3} times\nMouse key pressed: {4}\nVelocityX: {5}\nVelocityY: {6}\n", MouseX, MouseY, PreviousKey, PreviousKeyCount, MouseKeyPressed, testMap.Player.VelocityX, testMap.Player.VelocityY);
 
 
                 debugInfo.DisplayedString = debugText;
                 debugInfo.Position = new Vector2f(WindowWidth - (debugText.Split('\n').OrderByDescending(s => s.Length).ToArray()[0].Length * (debugInfo.CharacterSize / 2)) - 20, 0);
-                circle.Position= new Vector2f(1400,600);
+                circle.Position = new Vector2f(1400, 600);
                 //circle.Position = new Vector2f(circle.Position.X + (int)Math.Round(kMouse * XDiff), circle.Position.Y + (int)Math.Round(kMouse * YDiff));
 
                 if (window.HasFocus() && clock.ElapsedTime >= Time.FromMilliseconds(POLL_RATE)) {
                     clock.Restart();
                     ProvideInput();
                 }
+
+                if (testMap.Player.VelocityX != 0 || testMap.Player.VelocityY != 0 || cameraShake.ElapsedTime <= Time.FromMilliseconds(CAM_SHAKE_RATE)) {
+
+                    if (cameraShake.ElapsedTime >= Time.FromMilliseconds(CAM_SHAKE_RATE)) {
+                        cameraShake.Restart();
+                        shakeRet = !shakeRet;
+                    }
+
+                    var startCoord = shakeRet ? 1 : -1 * ((float)CAM_SHAKE_RATE / 2000);
+                    var dy = (float)Math.Pow(1 - (float)Math.Abs(1 - (cameraShake.ElapsedTime.AsSeconds()) / ((float)CAM_SHAKE_RATE / 2000)), 2);
+                    var dx = shakeShift.X - 10 * (shakeRet ? 1 : -1) * (cameraShake.ElapsedTime.AsSeconds());
+                    shakeShift = new Vector2f(dx, 40 * (dy));
+                }
+
+
 
                 window.Clear();
 
@@ -105,10 +124,13 @@ namespace PrimalFury {
                 Random r = new Random();
 
                 // Draw polys
+                
+
                 foreach (var v in vecs) 
-                    testRenderer.DrawPolyCC(v);
+                    testRenderer.DrawPolyCCShift(v, shakeShift);
 
                 RenderHUD();
+                testRenderer.DrawLine(new MapLine((new Vector2f(0, 0), shakeShift), Color.Magenta), new Vector2f(WindowWidth / 2, WindowHeight / 2));
 
                 // Draw
 #if DEBUG
