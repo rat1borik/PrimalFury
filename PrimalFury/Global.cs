@@ -9,9 +9,36 @@ using SFML.Graphics;
 using SFML.System;
 
 using PrimalFury.Utils.MathTools;
+using System.Collections.Concurrent;
 
 namespace PrimalFury {
+    public class FixedSizedQueue<T> : ConcurrentQueue<T>
+    {
+        private readonly object syncObject = new object();
+
+        public int Size { get; private set; }
+
+        public FixedSizedQueue(int size)
+        {
+            Size = size;
+        }
+
+        public new void Enqueue(T obj)
+        {
+            base.Enqueue(obj);
+            lock (syncObject)
+            {
+                while (base.Count > Size)
+                {
+                    T outObj;
+                    base.TryDequeue(out outObj);
+                }
+            }
+        }
+    }
     class Global {
+
+
         // Some Consts
         const int POLL_RATE = 16;
         const int CAM_SHAKE_RATE = 600;
@@ -47,6 +74,7 @@ namespace PrimalFury {
         static uint crosshairRectX = 25, crosshairRectY = 25;
         static string fileCrosshair = "crosshair.png";
 
+  
         static void Main(string[] args) {
             PrepareWindow();
 
@@ -79,11 +107,12 @@ namespace PrimalFury {
 
             // Start the game loop
             Mouse.SetPosition(new Vector2i((int)WindowWidth / 2, (int)WindowHeight / 2), window);
-            Clock clock = new Clock();
+            //Clock clock = new Clock();
             Clock cameraShake = new Clock();
             var shakeRet = false;
             var shakeShift = new Vector2f(0, 0);
-
+            FixedSizedQueue<Vector2f> shakeTrace = new FixedSizedQueue<Vector2f>(256);
+            var a = new Animation<(Vector2f, float)>((x)=>(new Vector2f(0.5f - x,(float)Math.Pow(0.5f - x, 2))*100, x), 1000, true, true);
             while (window.IsOpen) {
                 //debug
                 debugText = String.Format("X: {0}, Y: {1}\nKey pressed: {2} : {3} times\nMouse key pressed: {4}\nVelocityX: {5}\nVelocityY: {6}\n", MouseX, MouseY, PreviousKey, PreviousKeyCount, MouseKeyPressed, testMap.Player.VelocityX, testMap.Player.VelocityY);
@@ -94,23 +123,21 @@ namespace PrimalFury {
                 circle.Position = new Vector2f(1400, 600);
                 //circle.Position = new Vector2f(circle.Position.X + (int)Math.Round(kMouse * XDiff), circle.Position.Y + (int)Math.Round(kMouse * YDiff));
 
-                if (window.HasFocus() && clock.ElapsedTime >= Time.FromMilliseconds(POLL_RATE)) {
-                    clock.Restart();
+                if (window.HasFocus()) {
                     ProvideInput();
                 }
 
-                if (testMap.Player.VelocityX != 0 || testMap.Player.VelocityY != 0 || cameraShake.ElapsedTime <= Time.FromMilliseconds(CAM_SHAKE_RATE)) {
+                if (testMap.Player.VelocityX != 0 || testMap.Player.VelocityY != 0) {
+                    a.Start();
+                } else a.Freeze();
 
-                    if (cameraShake.ElapsedTime >= Time.FromMilliseconds(CAM_SHAKE_RATE)) {
-                        cameraShake.Restart();
-                        shakeRet = !shakeRet;
-                    }
-
-                    var startCoord = shakeRet ? 1 : -1 * ((float)CAM_SHAKE_RATE / 2000);
-                    var dy = (float)Math.Pow(1 - (float)Math.Abs(1 - (cameraShake.ElapsedTime.AsSeconds()) / ((float)CAM_SHAKE_RATE / 2000)), 2);
-                    var dx = shakeShift.X - 10 * (shakeRet ? 1 : -1) * (cameraShake.ElapsedTime.AsSeconds());
-                    shakeShift = new Vector2f(dx, 40 * (dy));
+                if (a.State == AnimationState.Running) {
+                    var t = a.Get();
+                    shakeShift = t.Item1;
+                    shakeTrace.Enqueue(shakeShift);
+                    Console.WriteLine(t.Item2);
                 }
+
 
 
 
@@ -125,11 +152,15 @@ namespace PrimalFury {
 
                 // Draw polys
                 
+               
 
                 foreach (var v in vecs) 
                     testRenderer.DrawPolyCCShift(v, shakeShift);
 
                 RenderHUD();
+
+                foreach (var v in shakeTrace)
+                    testRenderer.DrawPoint(new MapLine((v, v), Color.White), new Vector2f(WindowWidth / 2, WindowHeight / 2));
                 testRenderer.DrawLine(new MapLine((new Vector2f(0, 0), shakeShift), Color.Magenta), new Vector2f(WindowWidth / 2, WindowHeight / 2));
 
                 // Draw
@@ -145,6 +176,8 @@ namespace PrimalFury {
 
         }
         public static void ProvideInput() {
+            testMap.Player.IsRunning = Keyboard.IsKeyPressed(Keyboard.Key.LShift);
+
             if (Keyboard.IsKeyPressed(Keyboard.Key.A) || Keyboard.IsKeyPressed(Keyboard.Key.D) ) {
                 if (Keyboard.IsKeyPressed(Keyboard.Key.A))
                     testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit && testMap.Player.VelocityX > 0 ? testMap.Player.VelocityX : testMap.Player.VelocityX + testMap.Player.AccelerationRate;

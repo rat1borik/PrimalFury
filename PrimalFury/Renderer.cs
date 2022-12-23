@@ -24,6 +24,17 @@ namespace PrimalFury {
             if (r == null) throw new ArgumentNullException("renderWindow is null");
             _rWnd = r;
         }
+        public void DrawPoint(MapLine item) {
+            _rWnd.Draw(new Vertex[] {
+                    new Vertex((Vector2f)item.Points[0], item.Color),
+                }, PrimitiveType.Points);
+        }
+
+        public void DrawPoint(MapLine item, Vector2f position) {
+            _rWnd.Draw(new Vertex[] {
+                    new Vertex((Vector2f)item.Points[0] + position, item.Color),
+                }, PrimitiveType.Points);
+        }
 
         public void DrawLine(MapLine item) {
                 _rWnd.Draw(new Vertex[] {

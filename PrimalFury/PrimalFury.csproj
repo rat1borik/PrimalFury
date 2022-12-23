@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animation.cs" />
     <Compile Include="BSPTree.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="TestEnvironment.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Viewport.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
