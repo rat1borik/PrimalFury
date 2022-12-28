@@ -121,7 +121,7 @@ namespace PrimalFury {
 
                 var clipped = _m.MapParams.MapRect.Clip(mI.GetCoords());
 
-                if (mI is Wall) _viewlist.Add(new MapLine(clipped, ((Wall)mI).Color));
+                if (mI is Wall wall) _viewlist.Add(new MapLine(clipped, wall.Color));
                 else _viewlist.Add(new MapLine(clipped, Color.White));
 
             }

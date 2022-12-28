@@ -35,22 +35,24 @@ namespace PrimalFury {
 
         public AnimationState State { get { return _state; } }
 
-        public long InternalCounter { get { return _counter.ElapsedTime.AsMicroseconds(); } }
+        public long InternalCounter { get { return _counter.ElapsedTime.AsMilliseconds(); } }
         public long Duration { get { return _duration; } set { _duration = value; } }
 
         // Function of animation phase (0 to 1) returning 2x2 matrix
         // Duration of FULL REPEATING CYCLE (including reverse part, if exists) - milliseconds
-        public Animation(Animate<T> anim, long duration, bool repeatable = true, bool reversable = false) {
+        public Animation(Animate<T> anim, long duration, bool repeatable = true, bool reversable = false, float startShift = 0) {
             _anim = anim;
             _duration = duration;
             _repeatable = repeatable;
             _reversable = reversable;
+            _shift = (long)Math.Round(startShift*duration);
         }
 
         public void Start() {
 
             if (_state != AnimationState.Running) {
                 _counter = new Clock();
+                Console.WriteLine(_counter.ElapsedTime.AsMilliseconds());
                 _state = AnimationState.Running;
             }
         }
@@ -59,14 +61,15 @@ namespace PrimalFury {
 
             if (_state == AnimationState.Running) {
                 _state = AnimationState.Freezed;
-                _shift = _counter.ElapsedTime.AsMicroseconds() % _duration;
+                _shift = (_shift + _counter.ElapsedTime.AsMilliseconds())  % _duration;
+                Console.WriteLine(_shift);
                 _counter.Dispose();
             }
         }
 
         public void Stop() {
 
-            if (_state != AnimationState.Stopped) {
+            if (_state != AnimationState.Stopped&& _state != AnimationState.None) {
                 _state = AnimationState.Stopped;
                 _shift = 0;
                 _counter.Dispose();

@@ -36,7 +36,7 @@ namespace PrimalFury {
             }
         }
     }
-    class Global {
+    static class Global {
 
 
         // Some Consts
@@ -74,7 +74,10 @@ namespace PrimalFury {
         static uint crosshairRectX = 25, crosshairRectY = 25;
         static string fileCrosshair = "crosshair.png";
 
-  
+
+        //Main Animations
+        static Animation<(Vector2f, float)> camShake;
+
         static void Main(string[] args) {
             PrepareWindow();
 
@@ -107,12 +110,10 @@ namespace PrimalFury {
 
             // Start the game loop
             Mouse.SetPosition(new Vector2i((int)WindowWidth / 2, (int)WindowHeight / 2), window);
-            //Clock clock = new Clock();
-            Clock cameraShake = new Clock();
-            var shakeRet = false;
+
             var shakeShift = new Vector2f(0, 0);
             FixedSizedQueue<Vector2f> shakeTrace = new FixedSizedQueue<Vector2f>(256);
-            var a = new Animation<(Vector2f, float)>((x)=>(new Vector2f(0.5f - x,(float)Math.Pow(0.5f - x, 2))*100, x), 1000, true, true);
+            camShake = new Animation<(Vector2f, float)>((x)=>(new Vector2f((0.5f - x),(float)Math.Pow(0.5f - x, 2))*100, x), 1000, true, true, 0.25f);
             while (window.IsOpen) {
                 //debug
                 debugText = String.Format("X: {0}, Y: {1}\nKey pressed: {2} : {3} times\nMouse key pressed: {4}\nVelocityX: {5}\nVelocityY: {6}\n", MouseX, MouseY, PreviousKey, PreviousKeyCount, MouseKeyPressed, testMap.Player.VelocityX, testMap.Player.VelocityY);
@@ -128,14 +129,19 @@ namespace PrimalFury {
                 }
 
                 if (testMap.Player.VelocityX != 0 || testMap.Player.VelocityY != 0) {
-                    a.Start();
-                } else a.Freeze();
+                    camShake.Start();
+                    if (testMap.Player.IsRunning) {
+                        camShake.Duration = 500;
+                    } else {
+                        camShake.Duration = 1000;
+                    }
+                } else camShake.Freeze();
 
-                if (a.State == AnimationState.Running) {
-                    var t = a.Get();
+                if (camShake.State == AnimationState.Running) {
+                    var t = camShake.Get();
                     shakeShift = t.Item1;
                     shakeTrace.Enqueue(shakeShift);
-                    Console.WriteLine(t.Item2);
+                    //Console.WriteLine(t.Item2);
                 }
 
 
@@ -180,19 +186,19 @@ namespace PrimalFury {
 
             if (Keyboard.IsKeyPressed(Keyboard.Key.A) || Keyboard.IsKeyPressed(Keyboard.Key.D) ) {
                 if (Keyboard.IsKeyPressed(Keyboard.Key.A))
-                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit && testMap.Player.VelocityX > 0 ? testMap.Player.VelocityX : testMap.Player.VelocityX + testMap.Player.AccelerationRate;
+                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) > testMap.Player.VelocityLimit && testMap.Player.VelocityX > 0 ? testMap.Player.VelocityX - testMap.Player.AccelerationRate : testMap.Player.VelocityX + testMap.Player.AccelerationRate;
                 if (Keyboard.IsKeyPressed(Keyboard.Key.D))
-                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) >= testMap.Player.VelocityLimit && testMap.Player.VelocityX < 0 ? testMap.Player.VelocityX : testMap.Player.VelocityX - testMap.Player.AccelerationRate;
+                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) > testMap.Player.VelocityLimit && testMap.Player.VelocityX < 0 ? testMap.Player.VelocityX + testMap.Player.AccelerationRate : testMap.Player.VelocityX - testMap.Player.AccelerationRate;
             } else {
-                testMap.Player.VelocityX = testMap.Player.VelocityX == 0 ? 0 : (float)Math.Round(Math.Sign(testMap.Player.VelocityX) * (Math.Abs(testMap.Player.VelocityX) - testMap.Player.AccelerationRate), 4);
+                testMap.Player.VelocityX = (float)Math.Round(Math.Sign(testMap.Player.VelocityX) * (Math.Abs(testMap.Player.VelocityX) - testMap.Player.AccelerationRate), 4);
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.W) || Keyboard.IsKeyPressed(Keyboard.Key.S)) {
                 if (Keyboard.IsKeyPressed(Keyboard.Key.W))
-                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) >= testMap.Player.VelocityLimit && testMap.Player.VelocityY > 0 ? testMap.Player.VelocityY : testMap.Player.VelocityY + testMap.Player.AccelerationRate;
+                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) > testMap.Player.VelocityLimit && testMap.Player.VelocityY > 0 ? testMap.Player.VelocityY - testMap.Player.AccelerationRate : testMap.Player.VelocityY + testMap.Player.AccelerationRate;
                 if (Keyboard.IsKeyPressed(Keyboard.Key.S))
-                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) >= testMap.Player.VelocityLimit && testMap.Player.VelocityY < 0 ? testMap.Player.VelocityY : testMap.Player.VelocityY - testMap.Player.AccelerationRate;
+                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) > testMap.Player.VelocityLimit && testMap.Player.VelocityY < 0 ? testMap.Player.VelocityY + testMap.Player.AccelerationRate : testMap.Player.VelocityY - testMap.Player.AccelerationRate;
             } else {
-                testMap.Player.VelocityY = testMap.Player.VelocityY == 0 ? 0 : (float)Math.Round(Math.Sign(testMap.Player.VelocityY) * (Math.Abs(testMap.Player.VelocityY) - testMap.Player.AccelerationRate), 4);
+                testMap.Player.VelocityY = (float)Math.Round(Math.Sign(testMap.Player.VelocityY) * (Math.Abs(testMap.Player.VelocityY) - testMap.Player.AccelerationRate), 4);
             }
             testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection * testMap.Player.VelocityY;
             testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection.Rotate(-90) * testMap.Player.VelocityX;
