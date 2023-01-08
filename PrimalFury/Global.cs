@@ -38,10 +38,7 @@ namespace PrimalFury {
     }
     static class Global {
 
-
-        // Some Consts
-        const int POLL_RATE = 16;
-        const int CAM_SHAKE_RATE = 600;
+        public const float COLLIDE_DISTANCE = 2;
 
         // Map and builder
         static Map testMap;
@@ -57,7 +54,6 @@ namespace PrimalFury {
         // Mouse
         static uint MouseX = 0, MouseY = 0;
         static int XDiff = 0, YDiff = 0;
-        static double kMouse = 0.75;
 
         // Window
         static RenderWindow window;
@@ -94,9 +90,6 @@ namespace PrimalFury {
                 Scale = new Vector2f((float)crosshairRect.X / (float)crosshairImg.Size.X, (float)crosshairRect.Y / (float)crosshairImg.Size.Y)
             };
 
-            var circle = new CircleShape(500f, 100) {
-                FillColor = Color.Yellow
-            };
             var debugInfo = new Text() {
                 Font = debugFont,
                 CharacterSize = 14,
@@ -121,15 +114,13 @@ namespace PrimalFury {
 
                 debugInfo.DisplayedString = debugText;
                 debugInfo.Position = new Vector2f(WindowWidth - (debugText.Split('\n').OrderByDescending(s => s.Length).ToArray()[0].Length * (debugInfo.CharacterSize / 2)) - 20, 0);
-                circle.Position = new Vector2f(1400, 600);
-                //circle.Position = new Vector2f(circle.Position.X + (int)Math.Round(kMouse * XDiff), circle.Position.Y + (int)Math.Round(kMouse * YDiff));
 
                 if (window.HasFocus()) {
                     ProvideInput();
                 }
 
                 if (testMap.Player.VelocityX != 0 || testMap.Player.VelocityY != 0) {
-                    camShake.Start();
+                    //camShake.Start();
                     if (testMap.Player.IsRunning) {
                         camShake.Duration = 500;
                     } else {
@@ -144,24 +135,14 @@ namespace PrimalFury {
                     //Console.WriteLine(t.Item2);
                 }
 
-
-
-
                 window.Clear();
-
-                // Process events
                 window.DispatchEvents();
 
                 // Calculate screen-based polys
                 var vecs = vp.GetViewport();
-                Random r = new Random();
-
-                // Draw polys
-                
-               
 
                 foreach (var v in vecs) 
-                    testRenderer.DrawPolyCCShift(v, shakeShift);
+                    testRenderer.DrawPoly(v, default, shakeShift, true);
 
                 RenderHUD();
 
@@ -172,7 +153,6 @@ namespace PrimalFury {
                 // Draw
 #if DEBUG
                 window.Draw(debugInfo);
-                //window.Draw(circle);
 #endif
 
                 // Finally, display the rendered frame on screen
@@ -184,25 +164,65 @@ namespace PrimalFury {
         public static void ProvideInput() {
             testMap.Player.IsRunning = Keyboard.IsKeyPressed(Keyboard.Key.LShift);
 
-            if (Keyboard.IsKeyPressed(Keyboard.Key.A) || Keyboard.IsKeyPressed(Keyboard.Key.D) ) {
-                if (Keyboard.IsKeyPressed(Keyboard.Key.A))
-                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) > testMap.Player.VelocityLimit && testMap.Player.VelocityX > 0 ? testMap.Player.VelocityX - testMap.Player.AccelerationRate : testMap.Player.VelocityX + testMap.Player.AccelerationRate;
-                if (Keyboard.IsKeyPressed(Keyboard.Key.D))
-                    testMap.Player.VelocityX = Math.Abs(testMap.Player.VelocityX) > testMap.Player.VelocityLimit && testMap.Player.VelocityX < 0 ? testMap.Player.VelocityX + testMap.Player.AccelerationRate : testMap.Player.VelocityX - testMap.Player.AccelerationRate;
-            } else {
-                testMap.Player.VelocityX = (float)Math.Round(Math.Sign(testMap.Player.VelocityX) * (Math.Abs(testMap.Player.VelocityX) - testMap.Player.AccelerationRate), 4);
-            }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.W) || Keyboard.IsKeyPressed(Keyboard.Key.S)) {
-                if (Keyboard.IsKeyPressed(Keyboard.Key.W))
-                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) > testMap.Player.VelocityLimit && testMap.Player.VelocityY > 0 ? testMap.Player.VelocityY - testMap.Player.AccelerationRate : testMap.Player.VelocityY + testMap.Player.AccelerationRate;
-                if (Keyboard.IsKeyPressed(Keyboard.Key.S))
-                    testMap.Player.VelocityY = Math.Abs(testMap.Player.VelocityY) > testMap.Player.VelocityLimit && testMap.Player.VelocityY < 0 ? testMap.Player.VelocityY + testMap.Player.AccelerationRate : testMap.Player.VelocityY - testMap.Player.AccelerationRate;
-            } else {
-                testMap.Player.VelocityY = (float)Math.Round(Math.Sign(testMap.Player.VelocityY) * (Math.Abs(testMap.Player.VelocityY) - testMap.Player.AccelerationRate), 4);
-            }
-            testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection * testMap.Player.VelocityY;
-            testMap.Player.MapPosition = testMap.Player.MapPosition + testMap.Player.ViewDirection.Rotate(-90) * testMap.Player.VelocityX;
+            testMap.Player.VelocityY = GetVelocityChanges((Keyboard.Key.W, Keyboard.Key.S), testMap.Player.VelocityY, testMap.Player.VelocityLimit, testMap.Player.AccelerationRate);
+            testMap.Player.VelocityX = GetVelocityChanges((Keyboard.Key.A, Keyboard.Key.D), testMap.Player.VelocityX, testMap.Player.VelocityLimit, testMap.Player.AccelerationRate);
+
+            var dCoord = testMap.Player.ViewDirection * testMap.Player.VelocityY + testMap.Player.ViewDirection.Rotate(-90) * testMap.Player.VelocityX;
+
+            PerformCollide(ref dCoord);
+
+            testMap.Player.MapPosition = testMap.Player.MapPosition + dCoord;
         }
+
+        public static float GetVelocityChanges((Keyboard.Key, Keyboard.Key) keys, float velocity, float velLimit, float accRate) {
+            if (Keyboard.IsKeyPressed(keys.Item1) || Keyboard.IsKeyPressed(keys.Item2)) {
+                if (Keyboard.IsKeyPressed(keys.Item1))
+                    velocity = Math.Abs(velocity) > velLimit && velocity > 0 ? velocity - accRate : velocity + accRate;
+                if (Keyboard.IsKeyPressed(keys.Item2))
+                    velocity = Math.Abs(velocity) > velLimit && velocity < 0 ? velocity + accRate : velocity - accRate;
+            } else {
+                velocity = (float)Math.Round(Math.Sign(velocity) * (Math.Abs(velocity) - accRate), 4);
+            }
+
+            return velocity;
+        }
+
+        public static void PerformCollide(ref Vector2f deltaCoord) {
+            if (deltaCoord.X == 0 && deltaCoord.Y == 0) return;
+
+            var collidables = testMap.Items.Where(item => item.isCollidable());
+
+            foreach (var item in collidables) {
+
+                ////Normal, distance
+                var vec = (testMap.Player.MapPosition + deltaCoord).GetSausageDistance(item.GetCoords()).Normalize();
+
+                var coords = item.GetCoords();
+
+                if (vec.Item2 <= COLLIDE_DISTANCE) {
+                    //var mutation = deltaCoord.Cross(vec.Item1) * vec.Item1;
+                    //deltaCoord = deltaCoord - mutation;
+                    deltaCoord = new Vector2f();
+                    testMap.Player.VelocityX = 0;
+                    testMap.Player.VelocityY = 0;
+                }
+
+                //var shiftCut = (testMap.Player.MapPosition, testMap.Player.MapPosition + deltaCoord);
+
+                //var its = (testMap.Player.MapPosition, testMap.Player.MapPosition + deltaCoord).GetIntersection(coords);
+                //if (its.HasIntersection) {
+                //    var face = (coords.Item1 - its.PointOfIntersection).GetVecByOrtoBasis(deltaCoord).X < 0;
+                //    var base4basis = ((face ? coords.Item1 : coords.Item2) - its.PointOfIntersection).Normalize().Item1;
+                //    var basis = (base4basis, base4basis.Rotate(90));
+                //    var newBasisVec = (deltaCoord - its.PointOfIntersection).GetVecByBasis(basis);
+
+                //    var correctionVec = (newBasisVec - new Vector2f(0, newBasisVec.Y + COLLIDE_DISTANCE)).RestoreVecByBasis(basis);
+
+                //    deltaCoord = deltaCoord + correctionVec;
+                //}
+            }
+        }
+
         private static void PrepareWindow() {
             WindowWidth = VideoMode.DesktopMode.Width;
             WindowHeight = VideoMode.DesktopMode.Height;

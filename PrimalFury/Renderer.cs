@@ -73,34 +73,12 @@ namespace PrimalFury {
             });
         }
 
-        public void DrawPoly(List<Vector2f> vecs, Color fillColor, Vector2f position = new Vector2f()) {
-            var poly = new ConvexShape(4) {
-                Position = position,
-                FillColor = fillColor
-            };
-            for (int i = 0; i < vecs.Count; i++) poly.SetPoint((uint)i, vecs[i]);
-
-
-            _rWnd.Draw(poly);
-        }
-
-        public void DrawPolyCC(Polygon p, Vector2f position = new Vector2f()) {
+        public void DrawPoly(Polygon p, Vector2f position = new Vector2f(), Vector2f shift = new Vector2f(), bool centerScreen = false) {
             var poly = new ConvexShape(4) {
                 Position = position,
                 FillColor = p.Color
             };
-            for (int i = 0; i < p.Points.Length; i++) poly.SetPoint((uint)i, new Vector2f(p.Points[i].X + RWndCenter.X, RWndCenter.Y - p.Points[i].Y));
-
-
-            _rWnd.Draw(poly);
-        }
-
-        public void DrawPolyCCShift(Polygon p, Vector2f shift, Vector2f position = new Vector2f()) {
-            var poly = new ConvexShape(4) {
-                Position = position,
-                FillColor = p.Color
-            };
-            for (int i = 0; i < p.Points.Length; i++) poly.SetPoint((uint)i, new Vector2f(p.Points[i].X + RWndCenter.X + shift.X, RWndCenter.Y - p.Points[i].Y + shift.Y));
+            for (int i = 0; i < p.Points.Length; i++) poly.SetPoint((uint)i, new Vector2f(p.Points[i].X + (centerScreen ? RWndCenter.X : 0) + shift.X, (centerScreen ? RWndCenter.Y : 0) + (centerScreen ? -1 :1) * p.Points[i].Y + shift.Y));
 
 
             _rWnd.Draw(poly);

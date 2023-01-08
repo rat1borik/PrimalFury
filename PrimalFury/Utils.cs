@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -232,6 +233,13 @@ namespace PrimalFury {
                                                                                 (new Vector2f(container.X, 0), new Vector2f(0, 0)) };
                 }
 
+                public static List<Vector2f> GetContainerPoints(this Vector2f container) {
+                    return new List<Vector2f>() { new Vector2f(0, 0)
+                                                , new Vector2f(0, container.Y)
+                                                , new Vector2f(container.X, container.Y)
+                                                , new Vector2f(container.X, 0)};
+                }
+
                 public static List<(Vector2f, Vector2f)> GetContainerLines(this Vector2f container, Vector2f begCoord) {
                     return new List<(Vector2f, Vector2f)>() {(begCoord, new Vector2f(begCoord.X, container.Y + begCoord.Y)),
                                                                                 (new Vector2f(begCoord.X, container.Y + begCoord.Y), new Vector2f(container.X + begCoord.X, container.Y + begCoord.Y)),
@@ -422,7 +430,16 @@ namespace PrimalFury {
                     if (matrix.Length != 4 && matrix.Rank !=2) {
                         throw new ArgumentException("Wrong matrix");
                     }
+
                     return new Vector2f(src.Dot(new Vector2f(matrix[0,0], matrix[0,1])), src.Dot(new Vector2f(matrix[1, 0], matrix[1, 1])));
+                }
+
+                public static Vector2f ReverseMul(this Vector2f src, float[,] matrix) {
+                    if (matrix.Length != 4 && matrix.Rank !=2) {
+                        throw new ArgumentException("Wrong matrix");
+                    }
+
+                    return new Vector2f(src.Dot(new Vector2f(matrix[0,0], matrix[1,0])), src.Dot(new Vector2f(matrix[0, 1], matrix[1, 1])));
                 }
 
                 public static Vector3f Mul(this Vector3f src, float[,] matrix) {
@@ -440,6 +457,19 @@ namespace PrimalFury {
                         {basis.Item1.X, basis.Item1.Y},
                         {basis.Item2.X, basis.Item2.Y},
                     });
+                }
+
+                public static Vector2f GetVecByOrtoBasis(this Vector2f src, Vector2f basisY)
+                {
+                    return GetVecByBasis(src, (basisY, basisY.Rotate(-90)));
+                }
+
+                public static Vector2f RestoreVecByBasis(this Vector2f src, (Vector2f, Vector2f) basis)
+                {
+                    return src.ReverseMul(new float[2, 2] {
+                        {basis.Item1.X, basis.Item1.Y},
+                        {basis.Item2.X, basis.Item2.Y},
+                    }.Reverse());
                 }
 
                 public static Vector3f GetVecByBasis(this Vector3f src, (Vector2f, Vector2f) basis) {
@@ -460,6 +490,79 @@ namespace PrimalFury {
 
                 public static float Cos2V(this Vector2f v1, Vector2f v2) {
                     return v1.Dot(v2) / (v1.Length() * v2.Length());
+                }
+
+                public static (Vector2f, float) Normalize(this Vector2f v) {
+                    //if (v.Length() == 0) throw new ArgumentException("Vector length must not be 0");
+                    return (new Vector2f(v.Length() == 0 ? 0 : v.X / v.Length(), v.Length() == 0 ? 0 : v.Y / v.Length()), v.Length());
+                }
+
+                public static Vector2f GetSausageDistance(this Vector2f pt, (Vector2f, Vector2f) vec) {
+                    var basis = (vec.ToVector().Normalize().Item1, vec.ToVector().Normalize().Item1.Rotate(90));
+                    var basedPt = (pt-vec.Item1).GetVecByBasis(basis);
+                    if (basedPt.X < 0) {
+                        return (vec.Item1 - pt).RestoreVecByBasis(basis);
+                    } else if (basedPt.X > vec.ToVector().Length()) {
+                        return (vec.Item2 - pt).RestoreVecByBasis(basis);
+                    }
+
+                    return new Vector2f(0, -basedPt.Y).RestoreVecByBasis(basis);
+                }
+            }
+
+            public static class Matrixes {
+                public static float Determinant(this float[,] m) {
+                    if (m.GetLength(0) != m.GetLength(1)) {
+                        throw new ArgumentException("Non square matrix");
+                    }
+
+                    var size = m.GetLength(0);
+                    float acc;
+                    
+                    if (size == 1) return m[0, 0];
+
+                    if (size == 2) return (m[0, 0] * m[1, 1] - m[0, 1] * m[1, 0]);
+
+                    acc = 0;
+                    for (int i = 0; i < size; i++)
+                    {
+                        acc = acc + m[0, i] * AlgExt(m, 0, i);
+                    }
+                    return acc;
+                }
+                public static float AlgExt(this float[,] m, int row, int col) {
+                    if (m.GetLength(0) != m.GetLength(1)) {
+                        throw new ArgumentException("Non square matrix");
+                    }
+
+                    var size = m.GetLength(0);
+
+                    float[,] temp = new float[size - 1, size - 1];
+                    for (int i = 0; i < size - 1; i++) { 
+                        for (int j = 0; j < size - 1; j++) {
+                            temp[i, j] = m[i >= row ? i + 1 : i, j >= col ? j + 1 : j];
+                        }
+                    }
+
+                    return ((row + col) % 2 == 0 ? 1 : -1) * temp.Determinant();
+                }
+
+                public static float[,] Reverse(this float[,] m){
+                    if (m.GetLength(0) != m.GetLength(1)){
+                        throw new ArgumentException("Non square matrix");
+                    }
+
+                    var size = m.GetLength(0);
+                    float[,] res = new float[m.GetLength(0), m.GetLength(0)];
+
+                    var dt = m.Determinant();
+
+                    for (int i = 0; i < size; i++)
+                        for (int j = 0; j < size; j++)
+                            // Transponed matrix
+                            res[i, j] = AlgExt(m, j, i) / dt;
+
+                    return res;
                 }
             }
         }

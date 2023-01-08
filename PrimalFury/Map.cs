@@ -54,7 +54,7 @@ namespace PrimalFury
 
     public interface IMapItem {
         (Vector2f, Vector2f) GetCoords();
-
+        bool isCollidable();
         
     }
     public interface IMinimap {
@@ -112,6 +112,8 @@ namespace PrimalFury
         Vector2f _w1;
         Vector2f _w2;
         Color _c;
+        bool _isCollidable;
+
         public (Vector2f, Vector2f) GetCoords() {
             return (_w1, _w2);
         }
@@ -136,9 +138,10 @@ namespace PrimalFury
             }
         }
 
-        public Wall(float x1, float y1, float x2, float y2, Color? clr = null) {
+        public Wall(float x1, float y1, float x2, float y2, Color? clr = null, bool isCollidable = true) {
             _w1 = new Vector2f(x1, y1);
             _w2 = new Vector2f(x2, y2);
+            _isCollidable= isCollidable;
 
             if (clr == null) {
                 var rnd = new Random((int)Math.Round(x1 * y1 * x2 * y2));
@@ -150,9 +153,10 @@ namespace PrimalFury
             }
         }
 
-        public Wall(Vector2f wCoord1, Vector2f wCoord2, Color? clr = null) {
+        public Wall(Vector2f wCoord1, Vector2f wCoord2, Color? clr = null, bool isCollidable = true) {
             _w1 = wCoord1;
             _w2 = wCoord2;
+            _isCollidable = isCollidable;
 
             if (clr == null) {
                 var rnd = new Random((int)Math.Round((wCoord1+wCoord2).Length()));
@@ -163,9 +167,10 @@ namespace PrimalFury
                 throw new ArgumentException("Стена не может быть точкой");
             }
         }
-        public Wall((Vector2f , Vector2f ) w, Color? clr = null) {
+        public Wall((Vector2f , Vector2f ) w, Color? clr = null, bool isCollidable = true) {
             _w1 = w.Item1;
             _w2 = w.Item2;
+            _isCollidable = isCollidable;
 
             if (clr == null) {
                 var rnd = new Random((int)Math.Round((w.Item1 + w.Item2).Length()));
@@ -180,6 +185,8 @@ namespace PrimalFury
         public Vector2f ToVector() {
             return _w1.ToVector(_w2);
         }
+
+        public bool isCollidable() => _isCollidable;
 
         public override string ToString() {
             return string.Format("({0},{1})->({2},{3})", _w1.X.ToString(), _w1.Y.ToString(), _w2.X.ToString(), _w2.Y.ToString());

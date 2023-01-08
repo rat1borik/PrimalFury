@@ -24,7 +24,7 @@ namespace PrimalFury {
         public Player LoadPlayer() {
             return new Player(new PlayerParams {
                 FieldOfView = 80,
-                StartPosition = new Vector2f(150,100)
+                StartPosition = new Vector2f(150,80)
             });
         }
 
@@ -126,12 +126,13 @@ namespace PrimalFury {
 
             }
 
-            _viewlist = _viewlist.Concat(
-                _m.MapParams.MapRect.GetContainerLines().ToList().ConvertAll(x => new MapLine(x, Color.White))
-                ).ToList();
+            //_viewlist = _viewlist.Concat(
+            //    _m.MapParams.MapRect.GetContainerLines().ToList().ConvertAll(x => new MapLine(x, Color.White))
+            //    ).ToList();
 
         }
         public void Draw(Renderer r, Vector2f shift) {
+            r.DrawPoly(new Polygon(_m.MapParams.MapRect.GetContainerPoints(), new Color(180,180,180)), default, shift, false);
             r.DrawLineList(_viewlist, shift);
             r.DrawCircle(2, Color.Green, _m.Player.MapPosition + shift);
             var playerView = new List<MapLine>();
